@@ -25,7 +25,7 @@ import java.io.*;
 // a volume data class?
 // I won't give extra marks for that though.
 
-public class Example extends Application {
+public class ctHeadViewer extends Application {
     short cthead[][][]; //store the 3D volume data set
     short min, max; //min/max value in the 3D volume data set
     int CT_x_axis = 256;
@@ -245,8 +245,7 @@ public class Example extends Application {
             } // column loop
         } // row loop
     }
-
-
+    
     public static void main(String[] args) {
         launch();
     }
