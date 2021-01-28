@@ -5,8 +5,9 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
@@ -14,11 +15,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.image.PixelWriter;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
+import sun.jvm.hotspot.utilities.RBColor;
+
 import java.io.*;
 
 // OK this is not best practice - maybe you'd like to create
@@ -32,10 +33,11 @@ public class ctHeadViewer extends Application {
     int CT_y_axis = 256;
     int CT_z_axis = 113;
 
+    double opacity = 0.12;
+
     @Override
     public void start(Stage stage) throws FileNotFoundException, IOException {
         stage.setTitle("CThead Viewer");
-
 
         ReadData();
 
@@ -63,12 +65,14 @@ public class ctHeadViewer extends Application {
         ImageView FrontView = new ImageView(front_image);
         ImageView SideView = new ImageView(side_image);
 
-
         Button slice76_button=new Button("slice76"); //an example button to get the slice 76
+        Button volRendButton = new Button("Volume Render");
+
         //sliders to step through the slices (top and front directions) (remember 113 slices in top direction 0-112)
         Slider Top_slider = new Slider(0, CT_z_axis-1, 0);
         Slider Front_slider = new Slider(0, CT_y_axis-1, 0);
         Slider Side_slider = new Slider(0, CT_y_axis-1, 0);
+        Slider opacity_slider = new Slider(0, 100, 12);
 
         slice76_button.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -76,6 +80,15 @@ public class ctHeadViewer extends Application {
                 TopDownSlice(top_image, 76);
                 SideSlice(side_image, 76);
                 FrontSlice(front_image, 76);
+            }
+        });
+
+        volRendButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                volumeRender(side_image, "side");
+                volumeRender(top_image, "top");
+                volumeRender(front_image, "front");
             }
         });
 
@@ -109,32 +122,38 @@ public class ctHeadViewer extends Application {
                     }
                 });
 
-        Button volRendButton = new Button("Volume Render");
-        volRendButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-
-            }
-        });
+        opacity_slider.valueProperty().addListener(
+                new ChangeListener<Number>() {
+                    public void changed(ObservableValue <? extends Number >
+                                                observable, Number oldValue, Number newValue)
+                    {
+                        opacity = (double) (newValue)/100.0;
+                        volumeRender(side_image, "side");
+                        volumeRender(top_image, "top");
+                        volumeRender(front_image, "front");
+                    }
+                });
 
         FlowPane root = new FlowPane();
         root.setVgap(8);
         root.setHgap(4);
 //https://examples.javacodegeeks.com/desktop-java/javafx/scene/image-scene/javafx-image-example/
 
-
-
-
         StackPane FrontPadding = new StackPane(FrontView);
-        FrontPadding.setStyle("-fx-padding: 0 0 30 30;");
+        FrontPadding.setStyle("-fx-padding: 0 0 30 30");
+        FrontPadding.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
         StackPane SidePadding = new StackPane(SideView);
-        SidePadding.setStyle("-fx-padding: 0 0 0 30;");
+        SidePadding.setStyle("-fx-padding: 0 0 0 30");
+        SidePadding.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
+        StackPane TopPadding = new StackPane(TopView);
+        TopPadding.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
         //3. (referring to the 3 things we need to display an image)
         //we need to add it to the flow pane
-        root.getChildren().addAll(TopView, new VBox(FrontPadding, SidePadding), slice76_button, volRendButton,Top_slider, Front_slider, Side_slider);
+        root.getChildren().addAll(TopPadding, new VBox(FrontPadding, SidePadding), slice76_button, volRendButton,
+                Top_slider, Front_slider, Side_slider, opacity_slider);
 
         Scene scene = new Scene(root, 546, 480);
         stage.setScene(scene);
@@ -245,7 +264,71 @@ public class ctHeadViewer extends Application {
             } // column loop
         } // row loop
     }
-    
+
+    public short getView(String view, int x, int y, int z){
+        if (view.equals("top")){
+            return cthead[z][y][x];
+        } else if (view.equals("side")){
+            return cthead[y][x][z];
+        } else {
+            return cthead[y][z][x];
+        }
+    }
+
+    public void volumeRender(WritableImage image, String view){
+        int w=(int) image.getWidth(), h=(int) image.getHeight();
+        PixelWriter image_writer = image.getPixelWriter();
+        int rayLength = (view.equals("top")) ? CT_z_axis : CT_x_axis;
+
+        int j = 0;
+        int i = 0;
+        int ray = 0;
+
+        for (j = 0; j<h; j++) {
+            for (i = 0; i < w; i++) {
+                //Color cAccum = Color.color(0.0,0.0,0.0, 1.0);
+                double aAccum = 1;
+                double cRAccum = 0;
+                double cGAccum = 0;
+                double cBAccum = 0;
+                double L = 1;
+
+                for (ray = 0; ray < rayLength; ray++) {
+                    double[] c = transferFunction(getView(view, i, j, ray));
+
+                    cRAccum = Math.min(cRAccum + (aAccum * c[3] * L * c[0]), 1);
+                    cGAccum = Math.min(cGAccum + (aAccum * c[3] * L * c[1]), 1);
+                    cBAccum = Math.min(cBAccum + (aAccum * c[3] * L * c[2]), 1);
+                    aAccum = aAccum * (1 - c[3]);
+
+                }
+                double areal = 1 - aAccum;
+                image_writer.setColor(i, j, Color.color(cRAccum, cGAccum, cBAccum, areal));
+            }
+        }
+    }
+
+    private double[] transferFunction(short datum){
+        double R, G, B, O;
+        if ((datum > -299) && (datum < 50)){
+            R = 1.0;
+            G = 0.79;
+            B = 0.6;
+            O = opacity;
+        } else  if (datum > 300){
+            R = 1;
+            G = 1;
+            B = 1;
+            O = 0.8;
+         } else {
+            R = 0;
+            G = 0;
+            B = 0;
+            O = 0;
+        }
+        return new double[]{R,G,B,O};
+    }
+
     public static void main(String[] args) {
         launch();
     }
