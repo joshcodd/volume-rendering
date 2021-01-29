@@ -8,51 +8,38 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.layout.*;
-import javafx.scene.control.Label;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
-import sun.jvm.hotspot.utilities.RBColor;
 
 import java.io.*;
 
-// OK this is not best practice - maybe you'd like to create
-// a volume data class?
-// I won't give extra marks for that though.
-
 public class ctHeadViewer extends Application {
-    short cthead[][][]; //store the 3D volume data set
-    short min, max; //min/max value in the 3D volume data set
-    int CT_x_axis = 256;
-    int CT_y_axis = 256;
-    int CT_z_axis = 113;
-
+    Volume ctHead = new Volume(256, 256, 113);
     double opacity = 0.12;
 
     @Override
     public void start(Stage stage) throws FileNotFoundException, IOException {
         stage.setTitle("CThead Viewer");
 
-        ReadData();
+        ctHead.ReadData("CThead", false);
 
         //Good practice: Define your top view, front view and side view images (get the height and width correct)
         //Here's the top view - looking down on the top of the head (each slice we are looking at is CT_x_axis x CT_y_axis)
-        int Top_width = CT_x_axis;
-        int Top_height = CT_y_axis;
+        int Top_width = ctHead.getCT_x_axis();
+        int Top_height = ctHead.getCT_y_axis();
 
         //Here's the front view - looking at the front (nose) of the head (each slice we are looking at is CT_x_axis x CT_z_axis)
-        int Front_width = CT_x_axis;
-        int Front_height = CT_z_axis;
+        int Front_width = ctHead.getCT_x_axis();
+        int Front_height = ctHead.getCT_z_axis();
 
         //and you do the other (side view) - looking at the ear of the head
-        int side_width = CT_x_axis;
-        int side_height = CT_z_axis;
+        int side_width = ctHead.getCT_x_axis();
+        int side_height = ctHead.getCT_z_axis();
 
         //We need 3 things to see an image
         //1. We create an image we can write to
@@ -69,9 +56,9 @@ public class ctHeadViewer extends Application {
         Button volRendButton = new Button("Volume Render");
 
         //sliders to step through the slices (top and front directions) (remember 113 slices in top direction 0-112)
-        Slider Top_slider = new Slider(0, CT_z_axis-1, 0);
-        Slider Front_slider = new Slider(0, CT_y_axis-1, 0);
-        Slider Side_slider = new Slider(0, CT_y_axis-1, 0);
+        Slider Top_slider = new Slider(0, ctHead.getCT_z_axis()-1, 0);
+        Slider Front_slider = new Slider(0, ctHead.getCT_y_axis()-1, 0);
+        Slider Side_slider = new Slider(0, ctHead.getCT_y_axis()-1, 0);
         Slider opacity_slider = new Slider(0, 100, 12);
 
         slice76_button.setOnAction(new EventHandler<ActionEvent>() {
@@ -160,41 +147,6 @@ public class ctHeadViewer extends Application {
         stage.show();
     }
 
-    //Function to read in the cthead data set
-    public void ReadData() throws IOException {
-        //File name is hardcoded here - much nicer to have a dialog to select it and capture the size from the user
-        File file = new File("CThead");
-        //Read the data quickly via a buffer (in C++ you can just do a single fread - I couldn't find if there is an equivalent in Java)
-        DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
-
-        int i, j, k; //loop through the 3D data set
-
-        min=Short.MAX_VALUE; max=Short.MIN_VALUE; //set to extreme values
-        short read; //value read in
-        int b1, b2; //data is wrong Endian (check wikipedia) for Java so we need to swap the bytes around
-
-        cthead = new short[CT_z_axis][CT_y_axis][CT_x_axis]; //allocate the memory - note this is fixed for this data set
-        //loop through the data reading it in
-        for (k=0; k<CT_z_axis; k++) {
-            for (j=0; j<CT_y_axis; j++) {
-                for (i=0; i<CT_x_axis; i++) {
-                    //because the Endianess is wrong, it needs to be read byte at a time and swapped
-                    b1=((int)in.readByte()) & 0xff; //the 0xff is because Java does not have unsigned types
-                    b2=((int)in.readByte()) & 0xff; //the 0xff is because Java does not have unsigned types
-                    read=(short)((b2<<8) | b1); //and swizzle the bytes around
-                    if (read<min) min=read; //update the minimum
-                    if (read>max) max=read; //update the maximum
-                    cthead[k][j][i]=read; //put the short into memory (in C++ you can replace all this code with one fread)
-                }
-            }
-        }
-        System.out.println(min+" "+max); //diagnostic - for CThead this should be -1117, 2248
-        //(i.e. there are 3366 levels of grey (we are trying to display on 256 levels of grey)
-        //therefore histogram equalization would be a good thing
-        //maybe put your histogram equalization code here to set up the mapping array
-    }
-
-
     /*
        This function shows how to carry out an operation on an image.
        It obtains the dimensions of the image, and then loops through
@@ -219,10 +171,10 @@ public class ctHeadViewer extends Application {
                 //If you don't do this, your j,i could be outside the array bounds
                 //In the framework, the image is 256x256 and the data set slices are 256x256
                 //so I don't do anything - this also leaves you something to do for the assignment
-                datum=cthead[slice][j][i]; //get values from slice 76 (change this in your assignment)
+                datum = ctHead.getVoxel(slice, j, i); //get values from slice 76 (change this in your assignment)
                 //calculate the colour by performing a mapping from [min,max] -> 0 to 1 (float)
                 //Java setColor uses float values from 0 to 1 rather than 0-255 bytes for colour
-                col=(((float)datum-(float)min)/((float)(max-min)));
+                col=(((float)datum-(float)ctHead.getMin())/((float)(ctHead.getMax()-ctHead.getMin())));
                 image_writer.setColor(i, j, Color.color(col,col,col, 1.0));
             } // column loop
         } // row loop
@@ -238,9 +190,9 @@ public class ctHeadViewer extends Application {
 
         for (int j=0; j<h; j++) {
             for (int i=0; i<w; i++) {
-                datum=cthead[j][slice][i];
+                datum= ctHead.getVoxel(j, slice, i);
 
-                col=(((float)datum-(float)min)/((float)(max-min)));
+                col=(((float)datum-(float)ctHead.getMin())/((float)(ctHead.getMax()-ctHead.getMin())));
                 image_writer.setColor(i, j, Color.color(col,col,col, 1.0));
             } // column loop
         } // row loop
@@ -256,9 +208,9 @@ public class ctHeadViewer extends Application {
 
         for (int j=0; j<h; j++) {
             for (int i=0; i<w; i++) {
-                datum=cthead[j][i][slice];
+                datum= ctHead.getVoxel(j, i, slice);
 
-                col=(((float)datum-(float)min)/((float)(max-min)));
+                col=(((float)datum-(float)ctHead.getMin())/((float)(ctHead.getMax()-ctHead.getMin())));
 
                 image_writer.setColor(i, j, Color.color(col,col,col, 1.0));
             } // column loop
@@ -267,18 +219,18 @@ public class ctHeadViewer extends Application {
 
     public short getView(String view, int x, int y, int z){
         if (view.equals("top")){
-            return cthead[z][y][x];
+            return ctHead.getVoxel(z, y, x);
         } else if (view.equals("side")){
-            return cthead[y][x][z];
+            return ctHead.getVoxel(y, x, z);
         } else {
-            return cthead[y][z][x];
+            return ctHead.getVoxel(y, z, x);
         }
     }
 
     public void volumeRender(WritableImage image, String view){
         int w=(int) image.getWidth(), h=(int) image.getHeight();
         PixelWriter image_writer = image.getPixelWriter();
-        int rayLength = (view.equals("top")) ? CT_z_axis : CT_x_axis;
+        int rayLength = (view.equals("top")) ? ctHead.getCT_z_axis() : ctHead.getCT_x_axis();
 
         int j = 0;
         int i = 0;
@@ -293,13 +245,19 @@ public class ctHeadViewer extends Application {
                 double cBAccum = 0;
                 double L = 1;
 
-                for (ray = 0; ray < rayLength; ray++) {
-                    double[] c = transferFunction(getView(view, i, j, ray));
+                boolean hitBone = false;
+
+                for (ray = 0; ray < rayLength && !hitBone; ray++) {
+                    short currentVoxel = getView(view, i, j, ray);
+                    double[] c = transferFunction(currentVoxel);
+
+                   hitBone = currentVoxel > 3000;
 
                     cRAccum = Math.min(cRAccum + (aAccum * c[3] * L * c[0]), 1);
                     cGAccum = Math.min(cGAccum + (aAccum * c[3] * L * c[1]), 1);
                     cBAccum = Math.min(cBAccum + (aAccum * c[3] * L * c[2]), 1);
                     aAccum = aAccum * (1 - c[3]);
+
 
                 }
                 double areal = 1 - aAccum;
