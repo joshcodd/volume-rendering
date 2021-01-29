@@ -1,5 +1,3 @@
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
 import java.io.*;
 
 public class Volume {
@@ -63,8 +61,8 @@ public class Volume {
         return volume;
     }
 
-    public void setVolume(short[][][] cthead) {
-        this.volume = cthead;
+    public void setVolume(short[][][] volume) {
+        this.volume = volume;
     }
 
     public short getMin() {

@@ -1,10 +1,4 @@
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import javafx.application.Application;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.layout.*;
@@ -15,7 +9,6 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
 import java.io.*;
 
 public class ctHeadViewer extends Application {
@@ -23,9 +16,8 @@ public class ctHeadViewer extends Application {
     double opacity = 0.12;
 
     @Override
-    public void start(Stage stage) throws FileNotFoundException, IOException {
+    public void start(Stage stage) throws IOException {
         stage.setTitle("CThead Viewer");
-
         ctHead.ReadData("CThead", false);
 
         //Good practice: Define your top view, front view and side view images (get the height and width correct)
@@ -61,70 +53,43 @@ public class ctHeadViewer extends Application {
         Slider Side_slider = new Slider(0, ctHead.getCT_y_axis()-1, 0);
         Slider opacity_slider = new Slider(0, 100, 12);
 
-        slice76_button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                TopDownSlice(top_image, 76);
-                SideSlice(side_image, 76);
-                FrontSlice(front_image, 76);
-            }
+        slice76_button.setOnAction(event -> {
+            drawSlice(top_image, 76, "top");
+            drawSlice(side_image, 76, "side");
+            drawSlice(front_image, 76, "front");
         });
 
-        volRendButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                volumeRender(side_image, "side");
-                volumeRender(top_image, "top");
-                volumeRender(front_image, "front");
-            }
+        volRendButton.setOnAction(event -> {
+            volumeRender(side_image, "side");
+            volumeRender(top_image, "top");
+            volumeRender(front_image, "front");
         });
 
-        Top_slider.valueProperty().addListener(
-                new ChangeListener<Number>() {
-                    public void changed(ObservableValue <? extends Number >
-                                                observable, Number oldValue, Number newValue)
-                    {
-                        System.out.println(newValue.intValue());
-                        TopDownSlice(top_image, newValue.intValue());
-                    }
-                });
+        Top_slider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println(newValue.intValue());
+            drawSlice(top_image, newValue.intValue(), "top");
+        });
 
-        Front_slider.valueProperty().addListener(
-                new ChangeListener<Number>() {
-                    public void changed(ObservableValue <? extends Number >
-                                                observable, Number oldValue, Number newValue)
-                    {
-                        System.out.println(newValue.intValue());
-                        FrontSlice(front_image, newValue.intValue());
-                    }
-                });
+        Front_slider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println(newValue.intValue());
+            drawSlice(front_image, newValue.intValue(), "front");
+        });
 
-        Side_slider.valueProperty().addListener(
-                new ChangeListener<Number>() {
-                    public void changed(ObservableValue <? extends Number >
-                                                observable, Number oldValue, Number newValue)
-                    {
-                        System.out.println(newValue.intValue());
-                        SideSlice(side_image, newValue.intValue());
-                    }
-                });
+        Side_slider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println(newValue.intValue());
+            drawSlice(side_image, newValue.intValue(), "side");
+        });
 
-        opacity_slider.valueProperty().addListener(
-                new ChangeListener<Number>() {
-                    public void changed(ObservableValue <? extends Number >
-                                                observable, Number oldValue, Number newValue)
-                    {
-                        opacity = (double) (newValue)/100.0;
-                        volumeRender(side_image, "side");
-                        volumeRender(top_image, "top");
-                        volumeRender(front_image, "front");
-                    }
-                });
+        opacity_slider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            opacity = (double) (newValue)/100.0;
+            volumeRender(side_image, "side");
+            volumeRender(top_image, "top");
+            volumeRender(front_image, "front");
+        });
 
         FlowPane root = new FlowPane();
         root.setVgap(8);
         root.setHgap(4);
-//https://examples.javacodegeeks.com/desktop-java/javafx/scene/image-scene/javafx-image-example/
 
         StackPane FrontPadding = new StackPane(FrontView);
         FrontPadding.setStyle("-fx-padding: 0 0 30 30");
@@ -153,7 +118,7 @@ public class ctHeadViewer extends Application {
        the image carrying out the copying of a slice of data into the
        image.
    */
-    public void TopDownSlice(WritableImage image, int slice) {
+    public void drawSlice(WritableImage image, int slice, String view) {
         //Get image dimensions, and declare loop variables
         int w=(int) image.getWidth(), h=(int) image.getHeight();
         PixelWriter image_writer = image.getPixelWriter();
@@ -171,47 +136,10 @@ public class ctHeadViewer extends Application {
                 //If you don't do this, your j,i could be outside the array bounds
                 //In the framework, the image is 256x256 and the data set slices are 256x256
                 //so I don't do anything - this also leaves you something to do for the assignment
-                datum = ctHead.getVoxel(slice, j, i); //get values from slice 76 (change this in your assignment)
+                datum = getView(view, i , j, slice); //get values from slice 76 (change this in your assignment)
                 //calculate the colour by performing a mapping from [min,max] -> 0 to 1 (float)
                 //Java setColor uses float values from 0 to 1 rather than 0-255 bytes for colour
                 col=(((float)datum-(float)ctHead.getMin())/((float)(ctHead.getMax()-ctHead.getMin())));
-                image_writer.setColor(i, j, Color.color(col,col,col, 1.0));
-            } // column loop
-        } // row loop
-    }
-
-    public void FrontSlice(WritableImage image, int slice) {
-        //Get image dimensions, and declare loop variables
-        int w=(int) image.getWidth(), h=(int) image.getHeight();
-        PixelWriter image_writer = image.getPixelWriter();
-
-        double col;
-        short datum;
-
-        for (int j=0; j<h; j++) {
-            for (int i=0; i<w; i++) {
-                datum= ctHead.getVoxel(j, slice, i);
-
-                col=(((float)datum-(float)ctHead.getMin())/((float)(ctHead.getMax()-ctHead.getMin())));
-                image_writer.setColor(i, j, Color.color(col,col,col, 1.0));
-            } // column loop
-        } // row loop
-    }
-
-    public void SideSlice(WritableImage image, int slice) {
-        //Get image dimensions, and declare loop variables
-        int w=(int) image.getWidth(), h=(int) image.getHeight();
-        PixelWriter image_writer = image.getPixelWriter();
-
-        double col;
-        short datum;
-
-        for (int j=0; j<h; j++) {
-            for (int i=0; i<w; i++) {
-                datum= ctHead.getVoxel(j, i, slice);
-
-                col=(((float)datum-(float)ctHead.getMin())/((float)(ctHead.getMax()-ctHead.getMin())));
-
                 image_writer.setColor(i, j, Color.color(col,col,col, 1.0));
             } // column loop
         } // row loop
@@ -232,36 +160,26 @@ public class ctHeadViewer extends Application {
         PixelWriter image_writer = image.getPixelWriter();
         int rayLength = (view.equals("top")) ? ctHead.getCT_z_axis() : ctHead.getCT_x_axis();
 
-        int j = 0;
-        int i = 0;
-        int ray = 0;
-
-        for (j = 0; j<h; j++) {
-            for (i = 0; i < w; i++) {
-                //Color cAccum = Color.color(0.0,0.0,0.0, 1.0);
+        for (int j = 0; j<h; j++) {
+            for (int i = 0; i < w; i++) {
                 double aAccum = 1;
                 double cRAccum = 0;
                 double cGAccum = 0;
                 double cBAccum = 0;
                 double L = 1;
 
-                boolean hitBone = false;
-
-                for (ray = 0; ray < rayLength && !hitBone; ray++) {
+                for (int ray = 0; ray < rayLength; ray++) {
                     short currentVoxel = getView(view, i, j, ray);
                     double[] c = transferFunction(currentVoxel);
-
-                   hitBone = currentVoxel > 3000;
 
                     cRAccum = Math.min(cRAccum + (aAccum * c[3] * L * c[0]), 1);
                     cGAccum = Math.min(cGAccum + (aAccum * c[3] * L * c[1]), 1);
                     cBAccum = Math.min(cBAccum + (aAccum * c[3] * L * c[2]), 1);
                     aAccum = aAccum * (1 - c[3]);
-
-
                 }
-                double areal = 1 - aAccum;
-                image_writer.setColor(i, j, Color.color(cRAccum, cGAccum, cBAccum, areal));
+
+                double opacity = 1 - aAccum;
+                image_writer.setColor(i, j, Color.color(cRAccum, cGAccum, cBAccum, opacity));
             }
         }
     }
@@ -278,7 +196,7 @@ public class ctHeadViewer extends Application {
             G = 1;
             B = 1;
             O = 0.8;
-         } else {
+        } else {
             R = 0;
             G = 0;
             B = 0;
