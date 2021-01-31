@@ -1,3 +1,5 @@
+package models;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -11,12 +13,14 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import java.io.*;
 
-public class ctHeadViewer extends Application {
-    Volume ctHead = new Volume(256, 256, 113);
+public class CTHeadViewer {
+    private final Volume ctHead;
     double opacity = 0.12;
 
-    @Override
-    public void start(Stage stage) throws IOException {
+
+    public CTHeadViewer(Volume volume, Stage stage) throws IOException {
+        this.ctHead = volume;
+
         stage.setTitle("CThead Viewer");
         ctHead.ReadData("CThead", false);
 
@@ -110,7 +114,9 @@ public class ctHeadViewer extends Application {
         Scene scene = new Scene(root, 546, 480);
         stage.setScene(scene);
         stage.show();
+
     }
+
 
     /*
        This function shows how to carry out an operation on an image.
@@ -204,9 +210,4 @@ public class ctHeadViewer extends Application {
         }
         return new double[]{R,G,B,O};
     }
-
-    public static void main(String[] args) {
-        launch();
-    }
-
 }
