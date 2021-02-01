@@ -55,6 +55,7 @@ public class MenuController {
 
         filenameChoiceBox.valueProperty().addListener((observable, oldValue, newValue) ->
                 filename = "src/data/" + newValue);
+
     }
 
     public void handleSubmitClick() {
