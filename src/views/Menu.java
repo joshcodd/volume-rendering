@@ -27,6 +27,7 @@ public class Menu {
                     "An error was encountered.",
                     ButtonType.OK);
             error.showAndWait();
+            e.printStackTrace();
             stage.close();
         }
     }
