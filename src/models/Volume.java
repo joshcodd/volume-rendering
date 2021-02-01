@@ -58,28 +58,12 @@ public class Volume {
         return volume[x][y][z];
     }
 
-    public short[][][] getVolume() {
-        return volume;
-    }
-
-    public void setVolume(short[][][] volume) {
-        this.volume = volume;
-    }
-
     public short getMin() {
         return min;
     }
 
-    public void setMin(short min) {
-        this.min = min;
-    }
-
     public short getMax() {
         return max;
-    }
-
-    public void setMax(short max) {
-        this.max = max;
     }
 
     public int getCT_x_axis() {
