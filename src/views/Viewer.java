@@ -33,7 +33,6 @@ public class Viewer {
                     ButtonType.OK);
             error.showAndWait();
             stage.close();
-            e.printStackTrace();
         }
     }
 }
