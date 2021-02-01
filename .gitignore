@@ -1,6 +1,4 @@
 /out/
 .idea/
 .DS_Store
-CThead
-bunny
-merged-file
+src/data
