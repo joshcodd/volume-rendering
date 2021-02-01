@@ -95,6 +95,10 @@ public class CTHeadViewer {
                     cGAccum = Math.min(cGAccum + (aAccum * c[3] * L * c[1]), 1);
                     cBAccum = Math.min(cBAccum + (aAccum * c[3] * L * c[2]), 1);
                     aAccum = aAccum * (1 - c[3]);
+
+                    if (c[3] == 1){
+                        ray = rayLength;
+                    }
                 }
 
                 double opacity = 1 - aAccum;
