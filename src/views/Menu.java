@@ -9,9 +9,6 @@ import javafx.stage.Stage;
 import java.util.Objects;
 
 public class Menu {
-    private String filename;
-    private MenuController controller;
-
     public Menu(Stage stage){
         stage.setTitle("CThead Viewer");
         try {
@@ -21,7 +18,7 @@ public class Menu {
                     .openStream());
 
             Scene scene = new Scene(root, 546, 680);
-            controller = loader.getController();
+            MenuController controller = loader.getController();
             controller.setStage(stage);
             stage.setScene(scene);
             stage.show();

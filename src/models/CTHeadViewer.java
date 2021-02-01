@@ -1,122 +1,35 @@
 package models;
-
-import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.scene.Scene;
-import javafx.scene.layout.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Slider;
-import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
-import java.io.*;
 
 public class CTHeadViewer {
     private final Volume ctHead;
     double opacity = 0.12;
+    //Good practice: Define your top view, front view and side view images (get the height and width correct)
+    //Here's the top view - looking down on the top of the head (each slice we are looking at is CT_x_axis x CT_y_axis)
+    private final int Top_width;
+    private final int Top_height;
 
+    //Here's the front view - looking at the front (nose) of the head (each slice we are looking at is CT_x_axis x CT_z_axis)
+    private final int Front_width;
+    private final int Front_height;
 
-    public CTHeadViewer(Volume volume, Stage stage) throws IOException {
+    //and you do the other (side view) - looking at the ear of the head
+    private final int side_width;
+    private final int side_height;
+
+    public CTHeadViewer(Volume volume) {
         this.ctHead = volume;
+        this.Top_width = volume.getCT_x_axis();
+        this.Top_height = volume.getCT_y_axis();
 
-        stage.setTitle("CThead Viewer");
-        ctHead.ReadData("CThead", false);
+        this.Front_width = volume.getCT_x_axis();
+        this.Front_height = volume.getCT_z_axis();
 
-        //Good practice: Define your top view, front view and side view images (get the height and width correct)
-        //Here's the top view - looking down on the top of the head (each slice we are looking at is CT_x_axis x CT_y_axis)
-        int Top_width = ctHead.getCT_x_axis();
-        int Top_height = ctHead.getCT_y_axis();
-
-        //Here's the front view - looking at the front (nose) of the head (each slice we are looking at is CT_x_axis x CT_z_axis)
-        int Front_width = ctHead.getCT_x_axis();
-        int Front_height = ctHead.getCT_z_axis();
-
-        //and you do the other (side view) - looking at the ear of the head
-        int side_width = ctHead.getCT_x_axis();
-        int side_height = ctHead.getCT_z_axis();
-
-        //We need 3 things to see an image
-        //1. We create an image we can write to
-        WritableImage top_image = new WritableImage(Top_width, Top_height);
-        WritableImage front_image = new WritableImage(Front_width, Front_height);
-        WritableImage side_image = new WritableImage(side_width, side_height);
-
-        //2. We create a view of that image
-        ImageView TopView = new ImageView(top_image);
-        ImageView FrontView = new ImageView(front_image);
-        ImageView SideView = new ImageView(side_image);
-
-        Button slice76_button=new Button("slice76"); //an example button to get the slice 76
-        Button volRendButton = new Button("Volume Render");
-
-        //sliders to step through the slices (top and front directions) (remember 113 slices in top direction 0-112)
-        Slider Top_slider = new Slider(0, ctHead.getCT_z_axis()-1, 0);
-        Slider Front_slider = new Slider(0, ctHead.getCT_y_axis()-1, 0);
-        Slider Side_slider = new Slider(0, ctHead.getCT_y_axis()-1, 0);
-        Slider opacity_slider = new Slider(0, 100, 12);
-
-        slice76_button.setOnAction(event -> {
-            drawSlice(top_image, 76, "top");
-            drawSlice(side_image, 76, "side");
-            drawSlice(front_image, 76, "front");
-        });
-
-        volRendButton.setOnAction(event -> {
-            volumeRender(side_image, "side");
-            volumeRender(top_image, "top");
-            volumeRender(front_image, "front");
-        });
-
-        Top_slider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println(newValue.intValue());
-            drawSlice(top_image, newValue.intValue(), "top");
-        });
-
-        Front_slider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println(newValue.intValue());
-            drawSlice(front_image, newValue.intValue(), "front");
-        });
-
-        Side_slider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println(newValue.intValue());
-            drawSlice(side_image, newValue.intValue(), "side");
-        });
-
-        opacity_slider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            opacity = (double) (newValue)/100.0;
-            volumeRender(side_image, "side");
-            volumeRender(top_image, "top");
-            volumeRender(front_image, "front");
-        });
-
-        FlowPane root = new FlowPane();
-        root.setVgap(8);
-        root.setHgap(4);
-
-        StackPane FrontPadding = new StackPane(FrontView);
-        FrontPadding.setStyle("-fx-padding: 0 0 30 30");
-        FrontPadding.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-
-        StackPane SidePadding = new StackPane(SideView);
-        SidePadding.setStyle("-fx-padding: 0 0 0 30");
-        SidePadding.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-
-        StackPane TopPadding = new StackPane(TopView);
-        TopPadding.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
-
-        //3. (referring to the 3 things we need to display an image)
-        //we need to add it to the flow pane
-        root.getChildren().addAll(TopPadding, new VBox(FrontPadding, SidePadding), slice76_button, volRendButton,
-                Top_slider, Front_slider, Side_slider, opacity_slider);
-
-        Scene scene = new Scene(root, 546, 480);
-        stage.setScene(scene);
-        stage.show();
-
+        this.side_width = volume.getCT_x_axis();
+        this.side_height = volume.getCT_z_axis();
     }
-
 
     /*
        This function shows how to carry out an operation on an image.
@@ -210,4 +123,37 @@ public class CTHeadViewer {
         }
         return new double[]{R,G,B,O};
     }
+
+    public Volume getCtHead() {
+        return ctHead;
+    }
+
+    public void setOpacity(double opacity) {
+        this.opacity = opacity;
+    }
+
+    public int getTop_width() {
+        return Top_width;
+    }
+
+    public int getTop_height() {
+        return Top_height;
+    }
+
+    public int getFront_width() {
+        return Front_width;
+    }
+
+    public int getFront_height() {
+        return Front_height;
+    }
+
+    public int getSide_width() {
+        return side_width;
+    }
+
+    public int getSide_height() {
+        return side_height;
+    }
+
 }

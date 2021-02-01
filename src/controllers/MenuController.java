@@ -1,11 +1,9 @@
 package controllers;
 import models.*;
-
-import javafx.event.ActionEvent;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
-
+import views.Viewer;
 import java.io.IOException;
 
 public class MenuController {
@@ -15,10 +13,10 @@ public class MenuController {
     private int zAxis;
     private Stage stage;
 
-    public void hello(ActionEvent actionEvent) throws IOException {
+    public void hello() throws IOException {
         Volume v = new Volume(256,256, 113);
         v.ReadData("CThead", false);
-        new CTHeadViewer(v, stage);
+        new Viewer(stage, new CTHeadViewer(v));
     }
 
     public void handleFileChange(KeyEvent actionEvent) {
