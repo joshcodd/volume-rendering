@@ -75,9 +75,7 @@ public class ViewerController {
 
         opacitySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             ctHead.setOpacity((double) (newValue)/100.0);
-            ctHead.volumeRender(side_image, "side");
-            ctHead.volumeRender(top_image, "top");
-            ctHead.volumeRender(front_image, "front");
+            volumeRenderButton.fire();
         });
 
         midSlideButton.fire();
