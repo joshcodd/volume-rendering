@@ -6,31 +6,17 @@ import javafx.scene.layout.VBox;
 import models.*;
 import javafx.stage.Stage;
 import views.Viewer;
-
 import java.io.File;
-import java.io.IOException;
 import java.util.Objects;
-
 import static javafx.collections.FXCollections.observableArrayList;
 
 public class MenuController {
     @FXML
     public Button submitButton;
-
-
-    @FXML
     public TextField xText;
-
-    @FXML
     public TextField yText;
-
-    @FXML
     public TextField zText;
-
-    @FXML
     public CheckBox correctEndianBox;
-
-    @FXML
     public ChoiceBox<String> filenameChoiceBox;
     public Button defaultButton;
     public VBox menuPane;
@@ -66,7 +52,6 @@ public class MenuController {
 
         filenameChoiceBox.valueProperty().addListener((observable, oldValue, newValue) ->
                 filename = "src/data/" + newValue);
-
     }
 
     public void handleSubmitClick() {
@@ -83,7 +68,7 @@ public class MenuController {
         }
     }
 
-    public void handleDefaultClick() throws IOException {
+    public void handleDefaultClick() {
         Volume v = new Volume(256,256, 113);
         try {
         v.ReadData("src/data/CThead", false);
@@ -95,7 +80,6 @@ public class MenuController {
                     ButtonType.OK);
             error.showAndWait();
         }
-
     }
 
     public void setStage (Stage stage) {
@@ -115,8 +99,7 @@ public class MenuController {
         File folder = new File("src/data");
         ObservableList<String> scans = observableArrayList();
         for (File scan : Objects.requireNonNull(folder.listFiles())) {
-            scans.add(scan.getName().substring(0, scan
-                    .getName().length()));
+            scans.add(scan.getName());
         }
         return scans;
     }
