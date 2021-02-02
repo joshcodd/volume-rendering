@@ -36,7 +36,6 @@ public class ViewerController {
     WritableImage front_image;
     WritableImage side_image;
 
-
     public void draw() {
         top_image = new WritableImage(ctHead.getTop_width(), ctHead.getTop_height());
         front_image = new WritableImage(ctHead.getFront_width(), ctHead.getFront_height());
@@ -96,9 +95,8 @@ public class ViewerController {
             sliderValueStyle(opacitySlider);
         });
 
-        openFileButton.setOnAction(e -> {
-            menu.getRoot().setVisible(!menu.getRoot().isVisible());
-            });
+        openFileButton.setOnAction(e -> menu.getRoot().setVisible(!menu.getRoot().isVisible()));
+
     }
 
     public void sliderValueStyle(Slider slider){
