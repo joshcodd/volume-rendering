@@ -5,12 +5,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import models.CTHeadViewer;
+import views.Menu;
 
 public class ViewerController {
     @FXML
@@ -26,6 +25,10 @@ public class ViewerController {
     public StackPane firstViewBackground;
     public StackPane secondViewBackground;
     public StackPane thirdViewBackground;
+    public StackPane menuPane;
+    public Button openFileButton;
+
+    private Stage stage;
 
     private CTHeadViewer ctHead;
 
@@ -38,6 +41,11 @@ public class ViewerController {
         top_image = new WritableImage(ctHead.getTop_width(), ctHead.getTop_height());
         front_image = new WritableImage(ctHead.getFront_width(), ctHead.getFront_height());
         side_image = new WritableImage(ctHead.getSide_width(), ctHead.getSide_height());
+
+        Menu menu = new Menu(stage);
+        menuPane.getChildren().add(menu.getRoot());
+        menu.getController().setStage(stage);
+        menu.getRoot().setVisible(false);
 
         firstView.setImage(top_image);
         secondView.setImage(front_image);
@@ -87,6 +95,10 @@ public class ViewerController {
             volumeRenderButton.fire();
             sliderValueStyle(opacitySlider);
         });
+
+        openFileButton.setOnAction(e -> {
+            menu.getRoot().setVisible(!menu.getRoot().isVisible());
+            });
     }
 
     public void sliderValueStyle(Slider slider){
@@ -106,5 +118,13 @@ public class ViewerController {
 
     public Button getMidSlideButton(){
         return midSlideButton;
+    }
+
+    public StackPane getMenuPane() {
+        return menuPane;
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
     }
 }

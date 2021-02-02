@@ -14,7 +14,7 @@
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="611.0" style="-fx-background-color: #DFDFDF;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ViewerController">
    <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <children>
-         <StackPane HBox.hgrow="NEVER">
+         <StackPane id="menuPane" fx:id="menuPane" HBox.hgrow="NEVER">
             <children>
                <VBox alignment="CENTER" style="-fx-background-color: #1D1D1D #1D1D1D; -fx-padding: 20;">
                   <children>
@@ -80,7 +80,7 @@
                      </VBox>
                      <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
                         <children>
-                           <Button fx:id="volumeRenderButton1" mnemonicParsing="false" prefHeight="22.0" prefWidth="230.0" text="Open file" textFill="#aeaeae">
+                           <Button fx:id="openFileButton" mnemonicParsing="false" prefHeight="22.0" prefWidth="230.0" text="Open file" textFill="#aeaeae">
                               <font>
                                  <Font size="11.0" />
                               </font>

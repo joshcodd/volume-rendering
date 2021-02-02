@@ -2,6 +2,7 @@ package controllers;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import models.*;
 import javafx.stage.Stage;
 import views.Viewer;
@@ -15,14 +16,24 @@ import static javafx.collections.FXCollections.observableArrayList;
 public class MenuController {
     @FXML
     public Button submitButton;
-    public TextField filenameText;
+
+
+    @FXML
     public TextField xText;
+
+    @FXML
     public TextField yText;
+
+    @FXML
     public TextField zText;
+
+    @FXML
     public CheckBox correctEndianBox;
 
     @FXML
     public ChoiceBox<String> filenameChoiceBox;
+    public Button defaultButton;
+    public VBox menuPane;
 
     private String filename;
     private int xAxis = 0;
@@ -76,6 +87,7 @@ public class MenuController {
         Volume v = new Volume(256,256, 113);
         try {
         v.ReadData("src/data/CThead", false);
+
         new Viewer(stage, new CTHeadViewer(v));
         } catch (Exception e){
             Alert error = new Alert(Alert.AlertType.ERROR,
@@ -83,6 +95,7 @@ public class MenuController {
                     ButtonType.OK);
             error.showAndWait();
         }
+
     }
 
     public void setStage (Stage stage) {

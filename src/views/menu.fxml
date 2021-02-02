@@ -6,45 +6,38 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="680.0" prefWidth="546.0" style="-fx-background-color: #2B2B2B;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MenuController">
-   <BorderPane layoutY="-7.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="-50.0">
-      <center>
-         <VBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="500.0" prefWidth="400.0" style="-fx-background-color: black; -fx-border-radius: 10; -fx-background-radius: 10; -fx-opacity: 0.7;" BorderPane.alignment="CENTER">
-            <HBox maxWidth="-Infinity" prefWidth="240.0" VBox.vgrow="NEVER">
-               <children>
-                  <Label text="Select scan file:" textFill="#c9c9c9">
-                     <HBox.margin>
-                        <Insets bottom="3.0" left="3.0" />
-                     </HBox.margin>
-                  </Label>
-               </children>
-            </HBox>
-            <ChoiceBox fx:id="filenameChoiceBox" prefHeight="36.0" prefWidth="240.0">
-               <VBox.margin>
-                  <Insets bottom="5.0" />
-               </VBox.margin>
-            </ChoiceBox>
-            <TextField maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="250.0" promptText="X axis length" style="-fx-background-insets: 5; -fx-border-insets: 5; -fx-padding: 13;" fx:id="xText" />
-            <TextField fx:id="yText" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="250.0" promptText="Y axis length" style="-fx-background-insets: 5; -fx-border-insets: 5; -fx-padding: 13;" />
-            <TextField fx:id="zText" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="250.0" promptText="Z axis length" style="-fx-background-insets: 5; -fx-border-insets: 5; -fx-padding: 13;" />
-            <HBox alignment="CENTER_LEFT" maxWidth="-Infinity" prefWidth="240.0">
-               <VBox.margin>
-                  <Insets bottom="30.0" top="5.0" />
-               </VBox.margin>
-               <CheckBox fx:id="correctEndianBox" alignment="CENTER" mnemonicParsing="false" text="Correct endian?" textFill="#bcbcbc">
-                  <HBox.margin>
-                     <Insets />
-                  </HBox.margin>
-               </CheckBox>
-            </HBox>
-            <Button fx:id="submitButton" mnemonicParsing="false" onAction="#handleSubmitClick" prefHeight="46.0" prefWidth="251.0" style="-fx-border-insets: 5; -fx-background-insets: 5; -fx-padding: 15;" text="Submit" />
-            <Button fx:id="defaultButton" mnemonicParsing="false" onAction="#handleDefaultClick" prefHeight="47.0" prefWidth="255.0" style="-fx-border-insets: 7; -fx-background-insets: 7; -fx-padding: 10;" text="Default data set" />
-         </VBox>
-      </center>
-   </BorderPane>
-</AnchorPane>
+
+<VBox fx:id="menuPane" alignment="CENTER" style="-fx-background-color: #1D1D1D #1D1D1D; -fx-padding: 20;"
+      xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="controllers.MenuController">
+   <HBox maxWidth="-Infinity" prefWidth="240.0">
+      <Label text="Select scan file:" textFill="#c9c9c9">
+         <HBox.margin>
+            <Insets bottom="3.0" left="3.0"/>
+         </HBox.margin>
+      </Label>
+   </HBox>
+   <ChoiceBox fx:id="filenameChoiceBox" prefHeight="36.0" prefWidth="240.0"/>
+   <TextField maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="250.0" promptText="X axis length"
+              style="-fx-background-insets: 5; -fx-border-insets: 5; -fx-padding: 13;" fx:id="xText"/>
+   <TextField fx:id="yText" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="250.0" promptText="Y axis length"
+              style="-fx-background-insets: 5; -fx-border-insets: 5; -fx-padding: 13;"/>
+   <TextField fx:id="zText" maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="250.0" promptText="Z axis length"
+              style="-fx-background-insets: 5; -fx-border-insets: 5; -fx-padding: 13;"/>
+   <HBox alignment="CENTER_LEFT" maxWidth="-Infinity" prefWidth="240.0">
+      <CheckBox fx:id="correctEndianBox" alignment="CENTER" mnemonicParsing="false" text="Correct endian?"
+                textFill="#bcbcbc">
+         <HBox.margin>
+            <Insets/>
+         </HBox.margin>
+      </CheckBox>
+   </HBox>
+   <Button fx:id="submitButton" mnemonicParsing="false" onAction="#handleSubmitClick" prefHeight="46.0"
+           prefWidth="251.0" style="-fx-border-insets: 5; -fx-background-insets: 5; -fx-padding: 15;" text="Submit"/>
+   <Button fx:id="defaultButton" mnemonicParsing="false" onAction="#handleDefaultClick" prefHeight="47.0"
+           prefWidth="255.0" style="-fx-border-insets: 7; -fx-background-insets: 7; -fx-padding: 10;"
+           text="Default data set"/>
+</VBox>

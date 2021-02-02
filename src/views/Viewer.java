@@ -24,7 +24,36 @@ public class Viewer {
              controller = loader.getController();
             controller.setCTHeadViewer(ctHead);
             scene.getStylesheets().add("styles.css");
+            controller.setStage(stage);
             controller.draw();
+            stage.setScene(scene);
+            stage.show();
+        } catch (Exception e) {
+            Alert error = new Alert(Alert.AlertType.ERROR,
+                    "An error was encountered.",
+                    ButtonType.OK);
+            error.showAndWait();
+            e.printStackTrace();
+            stage.close();
+        }
+
+        controller.sliderValueStyle(controller.getOpacitySlider());
+        controller.getMidSlideButton().fire();
+    }
+
+    public Viewer(Stage stage, Parent menu){
+        ViewerController controller = new ViewerController();
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            Parent root = loader.load(Objects.requireNonNull(getClass().getClassLoader()
+                    .getResource("views/viewer.fxml"))
+                    .openStream());
+
+            Scene scene = new Scene(root, 890, 550);
+            controller = loader.getController();
+            scene.getStylesheets().add("styles.css");
+
+            controller.getMenuPane().getChildren().add(menu);
             stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
