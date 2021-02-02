@@ -10,7 +10,6 @@ import models.CTHeadViewer;
 import java.util.Objects;
 
 public class Viewer {
-    private String filename;
 
     public Viewer(Stage stage, CTHeadViewer ctHead){
         ViewerController controller = new ViewerController();
@@ -21,7 +20,7 @@ public class Viewer {
                     .openStream());
 
             Scene scene = new Scene(root, ctHead.getTop_width() + ctHead.getSide_width() + 330, 550);
-             controller = loader.getController();
+            controller = loader.getController();
             controller.setCTHeadViewer(ctHead);
             scene.getStylesheets().add("styles.css");
             controller.setStage(stage);
