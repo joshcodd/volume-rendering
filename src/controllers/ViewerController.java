@@ -48,9 +48,9 @@ public class ViewerController {
         thirdViewSlider.setMax(ctHead.getCtHead().getCT_y_axis() - 1);
 
         midSlideButton.setOnAction(event -> {
-            ctHead.drawSlice(top_image, 76, "top");
-            ctHead.drawSlice(side_image, 76, "side");
-            ctHead.drawSlice(front_image, 76, "front");
+            firstViewSlider.valueProperty().setValue(76);
+            secondViewSlider.valueProperty().setValue(76);
+            thirdViewSlider.valueProperty().setValue(76);
         });
 
         volumeRenderButton.setOnAction(event -> {
@@ -58,30 +58,53 @@ public class ViewerController {
             ctHead.volumeRender(top_image, "top");
             ctHead.volumeRender(front_image, "front");
 
-            Background blackBG = new Background(new BackgroundFill(new Color(0.035,0.035,0.035,1.0), CornerRadii.EMPTY, Insets.EMPTY));
+            Background blackBG = new Background(new BackgroundFill(
+                    new Color(0.035,0.035,0.035,1.0),
+                    CornerRadii.EMPTY, Insets.EMPTY));
+
             firstViewBackground.setBackground(blackBG);
             secondViewBackground.setBackground(blackBG);
             thirdViewBackground.setBackground(blackBG);
         });
 
-        firstViewSlider.valueProperty().addListener((observable, oldValue, newValue) ->
-                ctHead.drawSlice(top_image, newValue.intValue(), "top"));
+        firstViewSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+                ctHead.drawSlice(top_image, newValue.intValue(), "top");
+                sliderValueStyle(firstViewSlider);
+        });
 
-        secondViewSlider.valueProperty().addListener((observable, oldValue, newValue) ->
-                ctHead.drawSlice(front_image, newValue.intValue(), "front"));
+        secondViewSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+                ctHead.drawSlice(front_image, newValue.intValue(), "front");
+                sliderValueStyle(secondViewSlider);
+        });
 
-        thirdViewSlider.valueProperty().addListener((observable, oldValue, newValue) ->
-                ctHead.drawSlice(side_image, newValue.intValue(), "side"));
+        thirdViewSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+                    ctHead.drawSlice(side_image, newValue.intValue(), "side");
+                    sliderValueStyle(thirdViewSlider);
+        });
 
         opacitySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             ctHead.setOpacity((double) (newValue)/100.0);
             volumeRenderButton.fire();
+            sliderValueStyle(opacitySlider);
         });
+    }
 
-        midSlideButton.fire();
+    public void sliderValueStyle(Slider slider){
+        double value = (slider.getValue() - slider.getMin()) / (slider.getMax() - slider.getMin()) * 100.0 ;
+        slider.lookup(".slider .track").setStyle(String.format("-fx-background-color: " +
+                        "linear-gradient(to right, #0278D7 0%%, #0278D7 %f%%, #383838 %f%%, #383838 100%%);",
+                value, value));
     }
 
     public void setCTHeadViewer (CTHeadViewer ctHead) {
         this.ctHead = ctHead;
+    }
+
+    public Slider getOpacitySlider(){
+        return opacitySlider;
+    }
+
+    public Button getMidSlideButton(){
+        return midSlideButton;
     }
 }

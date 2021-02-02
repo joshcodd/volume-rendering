@@ -7,23 +7,23 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
 import models.CTHeadViewer;
-import models.Volume;
-
 import java.util.Objects;
 
 public class Viewer {
     private String filename;
 
     public Viewer(Stage stage, CTHeadViewer ctHead){
+        ViewerController controller = new ViewerController();
         try {
             FXMLLoader loader = new FXMLLoader();
             Parent root = loader.load(Objects.requireNonNull(getClass().getClassLoader()
                     .getResource("views/viewer.fxml"))
                     .openStream());
 
-            Scene scene = new Scene(root, ctHead.getTop_width() + ctHead.getSide_width(), 680);
-            ViewerController controller = loader.getController();
+            Scene scene = new Scene(root, ctHead.getTop_width() + ctHead.getSide_width() + 330, 550);
+             controller = loader.getController();
             controller.setCTHeadViewer(ctHead);
+            scene.getStylesheets().add("styles.css");
             controller.draw();
             stage.setScene(scene);
             stage.show();
@@ -32,7 +32,11 @@ public class Viewer {
                     "An error was encountered.",
                     ButtonType.OK);
             error.showAndWait();
+            e.printStackTrace();
             stage.close();
         }
+
+        controller.sliderValueStyle(controller.getOpacitySlider());
+        controller.getMidSlideButton().fire();
     }
 }

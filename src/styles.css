@@ -1,0 +1,17 @@
+.slider .thumb {
+    -fx-padding: 10 4 10 4;
+    -fx-border-radius: 0;
+    -fx-background-radius: 15;
+    -fx-background-color: #0278D7;
+}
+
+.slider .track {
+    -fx-background-color: #383838;
+}
+
+.button {
+    -fx-background-color: #282828;
+}
+.button:hover {
+    -fx-background-color: #303030;
+}
