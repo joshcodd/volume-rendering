@@ -12,102 +12,96 @@
 <?import javafx.scene.text.Font?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="611.0" style="-fx-background-color: #DFDFDF;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.ViewerController">
-   <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-         AnchorPane.topAnchor="0.0">
+   <HBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <StackPane id="menuPane" fx:id="menuPane" HBox.hgrow="NEVER">
          <VBox alignment="CENTER" style="-fx-background-color: #1D1D1D #1D1D1D; -fx-padding: 20;">
             <HBox>
-               <Label text="Slice" textFill="#aeaeae"/>
+               <Label text="Slice" textFill="#aeaeae" />
             </HBox>
             <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="250.0">
-               <Label text="View 1" textFill="#aeaeae"/>
+               <Label text="View 1" textFill="#aeaeae" />
                <Slider fx:id="firstViewSlider" VBox.vgrow="ALWAYS">
                   <VBox.margin>
-                     <Insets bottom="10.0"/>
+                     <Insets bottom="10.0" />
                   </VBox.margin>
                </Slider>
-               <Label text="View 2" textFill="#aeaeae"/>
+               <Label text="View 2" textFill="#aeaeae" />
                <Slider fx:id="secondViewSlider">
                   <VBox.margin>
-                     <Insets bottom="10.0"/>
+                     <Insets bottom="10.0" />
                   </VBox.margin>
                </Slider>
-               <Label text="View 3" textFill="#aeaeae"/>
+               <Label text="View 3" textFill="#aeaeae" />
                <Slider fx:id="thirdViewSlider">
                   <VBox.margin>
-                     <Insets bottom="15.0"/>
+                     <Insets bottom="15.0" />
                   </VBox.margin>
                </Slider>
-               <Button fx:id="midSlideButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0"
-                       style="-fx-padding: 10;" text="Slice 76" textFill="#aeaeae" VBox.vgrow="ALWAYS">
+               <Button fx:id="midSlideButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0" style="-fx-padding: 10;" text="Slice 76" textFill="#aeaeae" VBox.vgrow="ALWAYS">
                   <font>
-                     <Font name="System Bold" size="13.0"/>
+                     <Font name="System Bold" size="13.0" />
                   </font>
                   <VBox.margin>
-                     <Insets/>
+                     <Insets />
                   </VBox.margin>
                </Button>
                <padding>
-                  <Insets left="10.0" right="10.0" top="10.0"/>
+                  <Insets left="10.0" right="10.0" top="10.0" />
                </padding>
                <VBox.margin>
-                  <Insets bottom="25.0"/>
+                  <Insets bottom="30.0" />
                </VBox.margin>
             </VBox>
             <HBox>
-               <Label text="Effects" textFill="#aeaeae"/>
+               <Label text="Effects" textFill="#aeaeae" />
             </HBox>
             <VBox>
                <VBox>
                   <padding>
-                     <Insets bottom="20.0" left="10.0" right="10.0" top="10.0"/>
+                     <Insets bottom="20.0" left="10.0" right="10.0" top="10.0" />
                   </padding>
-                  <Button fx:id="volumeRenderButton" mnemonicParsing="false" prefHeight="27.0"
-                          prefWidth="230.0" style="-fx-padding: 10;" text="Volume Render" textFill="#aeaeae"
-                          VBox.vgrow="NEVER">
+                  <Button fx:id="volumeRenderButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0" style="-fx-padding: 10;" text="Volume Render" textFill="#aeaeae" VBox.vgrow="NEVER">
                      <VBox.margin>
-                        <Insets/>
+                        <Insets />
                      </VBox.margin>
                   </Button>
                   <Label text="Opacity" textFill="#aeaeae">
                      <VBox.margin>
-                        <Insets bottom="2.0" top="10.0"/>
+                        <Insets bottom="2.0" top="10.0" />
                      </VBox.margin>
                   </Label>
-                  <Slider fx:id="opacitySlider" value="12.0"/>
+                  <Slider fx:id="opacitySlider" value="12.0" />
                </VBox>
             </VBox>
             <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
-               <Button fx:id="openFileButton" mnemonicParsing="false" prefHeight="22.0" prefWidth="230.0"
-                       text="Open file" textFill="#aeaeae">
+               <Button fx:id="openFileButton" mnemonicParsing="false" prefHeight="22.0" prefWidth="230.0" text="Open file" textFill="#aeaeae">
                   <font>
-                     <Font size="11.0"/>
+                     <Font size="11.0" />
                   </font>
                   <HBox.margin>
-                     <Insets top="20.0"/>
+                     <Insets top="20.0" />
                   </HBox.margin>
                </Button>
             </HBox>
          </VBox>
       </StackPane>
-      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0"
-            style="-fx-background-color: #282828; -fx-padding: 10;" HBox.hgrow="ALWAYS">
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" style="-fx-background-color: #282828; -fx-padding: 10;" HBox.hgrow="ALWAYS">
          <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" HBox.hgrow="NEVER">
             <StackPane fx:id="firstViewBackground">
-               <ImageView fx:id="firstView" pickOnBounds="true" preserveRatio="true"/>
+               <ImageView fx:id="firstView" pickOnBounds="true" preserveRatio="true" />
             </StackPane>
          </VBox>
          <VBox alignment="CENTER" prefHeight="200.0">
             <StackPane fx:id="secondViewBackground">
-               <ImageView fx:id="secondView" pickOnBounds="true" preserveRatio="true"/>
+               <ImageView fx:id="secondView" pickOnBounds="true" preserveRatio="true" />
                <VBox.margin>
-                  <Insets bottom="15.0" left="15.0"/>
+                  <Insets bottom="15.0" left="15.0" />
                </VBox.margin>
             </StackPane>
             <StackPane fx:id="thirdViewBackground">
-               <ImageView fx:id="thirdView" pickOnBounds="true" preserveRatio="true"/>
+               <ImageView fx:id="thirdView" pickOnBounds="true" preserveRatio="true" />
                <VBox.margin>
-                  <Insets left="15.0" top="15.0"/>
+                  <Insets left="15.0" top="15.0" />
                </VBox.margin>
             </StackPane>
          </VBox>
