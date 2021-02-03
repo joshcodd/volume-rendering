@@ -50,8 +50,12 @@ public class MenuController {
 
         filenameChoiceBox.setItems(getScans());
 
-        filenameChoiceBox.valueProperty().addListener((observable, oldValue, newValue) ->
-                filename = "src/data/" + newValue);
+        filenameChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+                filename = "src/data/" + newValue;
+                isFilledIn();
+        });
+
+        submitButton.setDisable(true);
     }
 
     public void handleSubmitClick() {
@@ -105,7 +109,8 @@ public class MenuController {
     }
 
     private void isFilledIn(){
-        submitButton.setDisable(xAxis == 0 || yAxis == 0 || zAxis == 0);
+        submitButton.setDisable(filenameChoiceBox.getValue() == null ||
+                xAxis == 0 || yAxis == 0 || zAxis == 0);
     }
 
 

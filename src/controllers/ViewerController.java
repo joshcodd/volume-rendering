@@ -55,6 +55,10 @@ public class ViewerController {
         thirdViewSlider.setMax(ctHead.getCtHead().getCT_y_axis() - 1);
 
         midSlideButton.setOnAction(event -> {
+            firstViewSlider.valueProperty().setValue(75);
+            secondViewSlider.valueProperty().setValue(75);
+            thirdViewSlider.valueProperty().setValue(75);
+
             firstViewSlider.valueProperty().setValue(76);
             secondViewSlider.valueProperty().setValue(76);
             thirdViewSlider.valueProperty().setValue(76);
