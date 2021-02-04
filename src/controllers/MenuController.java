@@ -1,4 +1,5 @@
 package controllers;
+import com.sun.org.apache.xpath.internal.objects.XString;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -10,7 +11,14 @@ import java.io.File;
 import java.util.Objects;
 import static javafx.collections.FXCollections.observableArrayList;
 
+/**
+ * Controller class for the menu interface.
+ * Handles all user input.
+ * @author Josh Codd.
+ */
 public class MenuController {
+    private static final String PATH_TO_SCANS = "src/data";
+
     @FXML
     public Button submitButton;
     public TextField xText;
@@ -28,6 +36,9 @@ public class MenuController {
     private boolean isCorrectEndian = false;
     private Stage stage;
 
+    /**
+     * Initializes the user interface elements.
+     */
     @FXML
     public void initialize(){
         xText.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -58,6 +69,10 @@ public class MenuController {
         submitButton.setDisable(true);
     }
 
+
+    /**
+     * Opens a new viewer using data entered into page.
+     */
     public void handleSubmitClick() {
         Volume v = new Volume(xAxis, yAxis, zAxis);
         try {
@@ -72,6 +87,9 @@ public class MenuController {
         }
     }
 
+    /**
+     * Opens a new viewer with the standard CAT scan being displayed.
+     */
     public void handleDefaultClick() {
         Volume v = new Volume(256,256, 113);
         try {
@@ -86,10 +104,20 @@ public class MenuController {
         }
     }
 
+    /**
+     * Sets the stage of the application.
+     * @param stage The stage to set.
+     */
     public void setStage (Stage stage) {
         this.stage = stage;
     }
 
+
+    /**
+     * Checks if a string is possible to convert to a integer.
+     * @param value The value to convert.
+     * @return The converted value.
+     */
     private int toInt(String value){
         try {
             Integer.parseInt(value);
@@ -99,8 +127,12 @@ public class MenuController {
         return Integer.parseInt(value);
     }
 
+    /**
+     * Gets the names of all files (scans) available.
+     * @return The list of scans available to view.
+     */
     private ObservableList<String> getScans() {
-        File folder = new File("src/data");
+        File folder = new File(PATH_TO_SCANS);
         ObservableList<String> scans = observableArrayList();
         for (File scan : Objects.requireNonNull(folder.listFiles())) {
             scans.add(scan.getName());
@@ -108,10 +140,12 @@ public class MenuController {
         return scans;
     }
 
+    /**
+     * Handles submit button validation. Can only be pressed if all sensible values have been
+     * entered.
+     */
     private void isFilledIn(){
         submitButton.setDisable(filenameChoiceBox.getValue() == null ||
                 xAxis == 0 || yAxis == 0 || zAxis == 0);
     }
-
-
 }
