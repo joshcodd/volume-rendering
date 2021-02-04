@@ -11,12 +11,13 @@ public class CTHeadViewer {
     private final double CT_BACKGROUND_COLOUR = 0.043;
     private final double TRANSPARANT = 0;
     private final Volume ctHead;
-    private double opacity = 0;
+    private double opacity = 0.12;
+    private boolean isGradient = false;
 
     //TEMPORARY LIGHT SOURCE VARIABLES
-    public int light1 = 50;
-    public int light2 = 50;
-    public int light3 = 50;
+    public double light1 = 50;
+    public double light2 = 50;
+    public double light3 = 50;
 
     private final int Top_width;
     private final int Top_height;
@@ -117,6 +118,8 @@ public class CTHeadViewer {
         PixelWriter image_writer = image.getPixelWriter();
         int rayLength = (view.equals("top")) ? ctHead.getCT_z_axis() : ctHead.getCT_x_axis();
         Vector gradient = null;
+        int lastSample = 0;
+
 
         for (int j = 0; j<h; j++) {
             for (int i = 0; i < w; i++) {
@@ -125,19 +128,21 @@ public class CTHeadViewer {
                 double redAccum = 0;
                 double greenAccum = 0;
                 double blueAccum = 0;
-                double L = 0;
+                double L = isGradient ? 0 : 1;
 
                 for (int ray = 0; ray < rayLength; ray++) {
                     short currentVoxel = getView(view, i, j, ray);
-                    if (currentVoxel > 400 && !hitIntersection ){
+                    if (currentVoxel > 400 && !hitIntersection && isGradient){
                         if (gradient != null) {
                             gradient.setA(gradient.getA() - j);
                             gradient.setB(gradient.getB() - i);
-                            gradient.setC(gradient.getC() -ray);
+                            gradient.setC(gradient.getC() - (double) ray);
                             L = getLighting(j, i, ray, gradient);
                         }
                         hitIntersection = true;
-                        gradient = new Vector(j,i,ray);
+
+                        gradient = new Vector(j, i, ray);
+
                     }
 
                     //Compositing accumulation.
@@ -202,6 +207,14 @@ public class CTHeadViewer {
      */
     public void setOpacity(double opacity) {
         this.opacity = opacity;
+    }
+
+    /**
+     * Toggles gradient shading.
+     */
+    public void toggleGradient() {
+        this.isGradient = !isGradient;
+        System.out.println(isGradient);
     }
 
     /**

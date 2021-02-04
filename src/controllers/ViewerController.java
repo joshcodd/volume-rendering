@@ -33,6 +33,7 @@ public class ViewerController {
     public Slider v1;
     public Slider v2;
     public Slider v3;
+    public Button gradientButton;
 
     private Stage stage;
     private CTHeadViewer ctHead;
@@ -115,6 +116,11 @@ public class ViewerController {
             ctHead.light3 = (newValue.intValue());
             volumeRenderButton.fire();
             sliderValueStyle(opacitySlider);
+        });
+
+        gradientButton.setOnAction( e -> {
+            ctHead.toggleGradient();
+            volumeRenderButton.fire();
         });
 
         openFileButton.setOnAction(e -> menu.getRoot().setVisible(!menu.getRoot().isVisible()));
