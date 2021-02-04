@@ -4,18 +4,19 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
 
 public class CTHeadViewer {
+    private final double CT_BACKGROUND_COLOUR = 0.043;
+    private final double TRANSPARANT = 0.043;
     private final Volume ctHead;
-    double opacity = 0.12;
-    //Good practice: Define your top view, front view and side view images (get the height and width correct)
-    //Here's the top view - looking down on the top of the head (each slice we are looking at is CT_x_axis x CT_y_axis)
+    private double opacity = 0;
+    //TEMPORARY LIGHT SOURCE VARIABLES
+    public int light1 = 50;
+    public int light2 = 50;
+    public int light3 = 50;
+
     private final int Top_width;
     private final int Top_height;
-
-    //Here's the front view - looking at the front (nose) of the head (each slice we are looking at is CT_x_axis x CT_z_axis)
     private final int Front_width;
     private final int Front_height;
-
-    //and you do the other (side view) - looking at the ear of the head
     private final int side_width;
     private final int side_height;
 
@@ -31,12 +32,7 @@ public class CTHeadViewer {
         this.side_height = volume.getCT_z_axis();
     }
 
-    /*
-       This function shows how to carry out an operation on an image.
-       It obtains the dimensions of the image, and then loops through
-       the image carrying out the copying of a slice of data into the
-       image.
-   */
+
     public void drawSlice(WritableImage image, int slice, String view) {
         //Get image dimensions, and declare loop variables
         int w=(int) image.getWidth(), h=(int) image.getHeight();
@@ -74,37 +70,62 @@ public class CTHeadViewer {
         }
     }
 
+    public double getLighting(int j, int i, int ray, Vector gradient){
+        double L;
+        Vector lightDirection = new Vector(light1 - j, light2 - i, light3 - ray);
+        lightDirection.normalize();
+        gradient.normalize();
+        L = gradient.dotProduct(lightDirection);
+        return Math.max(0, L);
+    }
+
     public void volumeRender(WritableImage image, String view){
         int w=(int) image.getWidth(), h=(int) image.getHeight();
         PixelWriter image_writer = image.getPixelWriter();
         int rayLength = (view.equals("top")) ? ctHead.getCT_z_axis() : ctHead.getCT_x_axis();
+        Vector gradient = null;
 
         for (int j = 0; j<h; j++) {
             for (int i = 0; i < w; i++) {
-                double aAccum = 1;
-                double cRAccum = 0;
-                double cGAccum = 0;
-                double cBAccum = 0;
-                double L = 1;
+                boolean hitIntersection = false;
+                double alphaAccum = 1;
+                double redAccum = 0;
+                double greenAccum = 0;
+                double blueAccum = 0;
+                double L = 0;
 
                 for (int ray = 0; ray < rayLength; ray++) {
                     short currentVoxel = getView(view, i, j, ray);
-                    double[] c = transferFunction(currentVoxel);
-
-                    cRAccum = Math.min(cRAccum + (aAccum * c[3] * L * c[0]), 1);
-                    cGAccum = Math.min(cGAccum + (aAccum * c[3] * L * c[1]), 1);
-                    cBAccum = Math.min(cBAccum + (aAccum * c[3] * L * c[2]), 1);
-                    aAccum = aAccum * (1 - c[3]);
-
-                    if (c[3] == 1){
-                        ray = rayLength;
+                    if (currentVoxel > 400 && !hitIntersection ){
+                        if (gradient != null) {
+                            gradient.setA(gradient.getA() - j);
+                            gradient.setB(gradient.getB() - i);
+                            gradient.setC(gradient.getC() -ray);
+                            L = getLighting(j, i, ray, gradient);
+                        }
+                        hitIntersection = true;
+                        gradient = new Vector(j,i,ray);
                     }
+
+                    //Compositing accumulation.
+                    double[] c = transferFunction(currentVoxel);
+                    double sigma = c[3];
+                    redAccum = Math.min(redAccum + (alphaAccum * sigma * L * c[0]), 1);
+                    greenAccum = Math.min(greenAccum + (alphaAccum * sigma * L * c[1]), 1);
+                    blueAccum = Math.min(blueAccum + (alphaAccum * sigma * L * c[2]), 1);
+                    alphaAccum = alphaAccum * (1 - sigma);
                 }
 
-                double opacity = 1 - aAccum;
-                image_writer.setColor(i, j, Color.color(cRAccum, cGAccum, cBAccum, opacity));
-            }
-        }
+                //Composite final black background.
+                redAccum = redAccum + (alphaAccum * CT_BACKGROUND_COLOUR * L * TRANSPARANT);
+                greenAccum = greenAccum + (alphaAccum * CT_BACKGROUND_COLOUR * L * TRANSPARANT);
+                blueAccum = blueAccum + (alphaAccum * CT_BACKGROUND_COLOUR * L * TRANSPARANT);
+                alphaAccum = alphaAccum * (TRANSPARANT);
+
+                double opacity = 1 - alphaAccum;
+                image_writer.setColor(i, j, Color.color(redAccum, greenAccum, blueAccum, opacity));
+            }//column
+        }//row
     }
 
     private double[] transferFunction(short datum){
@@ -160,4 +181,91 @@ public class CTHeadViewer {
         return side_height;
     }
 
+
+//CODE FOR POTENTIALLY ROTATING HEAD 45 DEGREES
+//    public void drawSlice45(WritableImage image, int slice, String view) {
+//        //Get image dimensions, and declare loop variables
+//        int w=(int) image.getWidth(), h=(int) image.getHeight();
+//        PixelWriter image_writer = image.getPixelWriter();
+//
+//        double iCenter = w/2;
+//        double jCenter = h/2;
+//        double kCenter = (iCenter <= jCenter) ? iCenter : jCenter;
+//
+//
+//        double col;
+//        short datum;
+//
+//        double maxX = Double.MIN_VALUE;
+//        double minX = Double.MAX_VALUE;
+//
+//        double maxZ = Double.MIN_VALUE;
+//        double minZ = Double.MAX_VALUE;
+//
+//        for (int j=0; j<h; j++) {
+//            for (int i=0; i<w; i++) {
+//
+//                int oldX = i;
+//                int oldY = j;
+//                int oldZ = slice;
+//
+////                for (int r = 0; r < w; r++){
+////                    if (Math.round(i * Math.cos(45) + (r) * Math.sin(45)) == slice) {
+////                        double newX = i * Math.cos(45) + (r) * Math.sin(45);
+////                        double newz = i * Math.sin(45) + (r) * Math.cos(45);
+////                        int z = (int) Math.round(newz);
+////                        int x = (int) Math.round(newX);
+////
+////
+////                        if (x < w && z < w && x > -1 && z > -1) {
+////                            datum = getView("side", x, j, z);
+////                            col = (((float) datum - (float) ctHead.getMin()) / ((float) (ctHead.getMax() - ctHead.getMin())));
+////                            image_writer.setColor(i, j, Color.color(col, col, col, 1.0));
+////                        }
+////                        //break;
+////                    }
+////                }
+//
+//               double newX1 = i * Math.cos(45) + (slice) * Math.sin(45);
+//               double newz1 = i * Math.sin(45) + (slice) * Math.cos(45);
+//
+//
+//                System.out.println(slice + " " + newz1);
+//
+//
+//                int z = (int) Math.round(newz1);
+//                int x = (int) Math.round(newX1);
+//
+//
+//
+//
+//                if (x > maxX){
+//                    maxX = x;
+//                }
+//
+//                if (z > maxZ){
+//                    maxZ = z;
+//                }
+//
+//                if (x < minX){
+//                    minX = x;
+//                }
+//
+//                if (z < minZ){
+//                    minZ = z;
+//                }
+//
+//                if (x < w && z < w && x > -1 && z > -1) {
+//                    datum = getView("side", x, j, z);
+//                    col = (((float) datum - (float) ctHead.getMin()) / ((float) (ctHead.getMax() - ctHead.getMin())));
+//                    image_writer.setColor(i, j, Color.color(col, col, col, 1.0));
+//                }
+//            } // column loop
+//        } // row loop
+//
+//        System.out.println(minX + " " + maxX);
+//
+//        System.out.println(minZ + " " + maxZ);
+//
+//    }
 }

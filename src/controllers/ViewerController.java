@@ -1,12 +1,10 @@
 package controllers;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import models.CTHeadViewer;
 import views.Menu;
@@ -27,16 +25,18 @@ public class ViewerController {
     public StackPane thirdViewBackground;
     public StackPane menuPane;
     public Button openFileButton;
+    public Slider v1;
+    public Slider v2;
+    public Slider v3;
 
     private Stage stage;
-
     private CTHeadViewer ctHead;
 
     WritableImage top_image;
     WritableImage front_image;
     WritableImage side_image;
 
-    public void draw() {
+    public void initialize() {
         top_image = new WritableImage(ctHead.getTop_width(), ctHead.getTop_height());
         front_image = new WritableImage(ctHead.getFront_width(), ctHead.getFront_height());
         side_image = new WritableImage(ctHead.getSide_width(), ctHead.getSide_height());
@@ -68,14 +68,6 @@ public class ViewerController {
             ctHead.volumeRender(side_image, "side");
             ctHead.volumeRender(top_image, "top");
             ctHead.volumeRender(front_image, "front");
-
-            Background blackBG = new Background(new BackgroundFill(
-                    new Color(0.035,0.035,0.035,1.0),
-                    CornerRadii.EMPTY, Insets.EMPTY));
-
-            firstViewBackground.setBackground(blackBG);
-            secondViewBackground.setBackground(blackBG);
-            thirdViewBackground.setBackground(blackBG);
         });
 
         firstViewSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -99,8 +91,25 @@ public class ViewerController {
             sliderValueStyle(opacitySlider);
         });
 
-        openFileButton.setOnAction(e -> menu.getRoot().setVisible(!menu.getRoot().isVisible()));
+        v1.valueProperty().addListener((observable, oldValue, newValue) -> {
+            ctHead.light1 = (newValue.intValue());
+            volumeRenderButton.fire();
+            sliderValueStyle(opacitySlider);
+        });
 
+        v2.valueProperty().addListener((observable, oldValue, newValue) -> {
+            ctHead.light2 = (newValue.intValue());
+            volumeRenderButton.fire();
+            sliderValueStyle(opacitySlider);
+        });
+
+        v3.valueProperty().addListener((observable, oldValue, newValue) -> {
+            ctHead.light3 = (newValue.intValue());
+            volumeRenderButton.fire();
+            sliderValueStyle(opacitySlider);
+        });
+
+        openFileButton.setOnAction(e -> menu.getRoot().setVisible(!menu.getRoot().isVisible()));
     }
 
     public void sliderValueStyle(Slider slider){
@@ -122,9 +131,7 @@ public class ViewerController {
         return midSlideButton;
     }
 
-    public StackPane getMenuPane() {
-        return menuPane;
-    }
+    public StackPane getMenuPane() { return menuPane; }
 
     public void setStage(Stage stage) {
         this.stage = stage;

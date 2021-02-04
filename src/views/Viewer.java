@@ -24,7 +24,7 @@ public class Viewer {
             controller.setCTHeadViewer(ctHead);
             scene.getStylesheets().add("styles.css");
             controller.setStage(stage);
-            controller.draw();
+            controller.initialize();
             stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
