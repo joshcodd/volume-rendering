@@ -108,6 +108,16 @@ public class CTHeadViewer {
         return Math.max(0, gradient.dotProduct(lightDirection));
     }
 
+
+    /**
+     * Calculates the gradient for the current voxel.
+     * @param i The x location of voxel.
+     * @param j The y location of voxel.
+     * @param z The z/ray location of voxel.
+     * @param rayLength Maximum length of the ray.
+     * @param view The scan direction. i.e top, front or side
+     * @return The gradient of the specified voxel
+     */
     public Vector calculateGradient(int i, int j, int z, int rayLength, String view){
         Vector x1y1 = new Vector((i - 1), j, 0);
         Vector x2y2= new Vector((i + 1), j, 0);
@@ -155,27 +165,20 @@ public class CTHeadViewer {
                 double blueAccum = 0;
                 double L = isGradient ? 0 : 1;
 
-
                 for (int ray = 0; ray < rayLength; ray++) {
                     short currentVoxel = getView(view, i, j, ray);
                     if (currentVoxel > 400  && isGradient){
-//                        if (gradient != null) {
-//                            gradient.setA(gradient.getA() - i); // swapped i j
-//                            gradient.setB(gradient.getB() - j);
-//                            gradient.setC(gradient.getC() - (double) ray);
-//                            L = getLighting(i, j, ray, gradient); //swapped i j
-//                        }
-                        L = getLighting(i, j, ray, calculateGradient(i,j,ray,rayLength,view));
-                        //gradient = new Vector(i, j, ray); //swapped i j
+                        Vector gradient = calculateGradient(i,j,ray,rayLength,view);
+                        L = getLighting(i, j, ray, gradient);
                         ray = rayLength;
                     }
 
                     //Compositing accumulation.
-                    double[] c = transferFunction(currentVoxel);
-                    double sigma = c[3];
-                    redAccum = Math.min(redAccum + (alphaAccum * sigma * L * c[0]), 1);
-                    greenAccum = Math.min(greenAccum + (alphaAccum * sigma * L * c[1]), 1);
-                    blueAccum = Math.min(blueAccum + (alphaAccum * sigma * L * c[2]), 1);
+                    double[] colour = transferFunction(currentVoxel);
+                    double sigma = colour[3];
+                    redAccum = Math.min(redAccum + (alphaAccum * sigma * L * colour[0]), 1);
+                    greenAccum = Math.min(greenAccum + (alphaAccum * sigma * L * colour[1]), 1);
+                    blueAccum = Math.min(blueAccum + (alphaAccum * sigma * L * colour[2]), 1);
                     alphaAccum = alphaAccum * (1 - sigma);
                 }
 
