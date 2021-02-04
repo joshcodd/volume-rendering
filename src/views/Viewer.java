@@ -9,8 +9,17 @@ import javafx.stage.Stage;
 import models.CTHeadViewer;
 import java.util.Objects;
 
+/**
+ * Class to display and load a viewer to screen.
+ * @author Josh Codd.
+ */
 public class Viewer {
 
+    /**
+     * Creates and displays a viewer using the specified ct viewer.
+     * @param stage The stage to display this scene on.
+     * @param ctHead The viewer to display.
+     */
     public Viewer(Stage stage, CTHeadViewer ctHead){
         ViewerController controller = new ViewerController();
         try {
@@ -24,7 +33,7 @@ public class Viewer {
             controller.setCTHeadViewer(ctHead);
             scene.getStylesheets().add("styles.css");
             controller.setStage(stage);
-            controller.initialize();
+            controller.init();
             stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
@@ -32,14 +41,17 @@ public class Viewer {
                     "An error was encountered.",
                     ButtonType.OK);
             error.showAndWait();
-            e.printStackTrace();
             stage.close();
         }
-
         controller.sliderValueStyle(controller.getOpacitySlider());
         controller.getMidSlideButton().fire();
     }
 
+    /**
+     * Creates and displays a viewer showing the menu specified.
+     * @param stage The stage to display this scene on.
+     * @param menu The menu to display.
+     */
     public Viewer(Stage stage, Parent menu){
         ViewerController controller = new ViewerController();
         try {
@@ -51,7 +63,6 @@ public class Viewer {
             Scene scene = new Scene(root, 890, 550);
             controller = loader.getController();
             scene.getStylesheets().add("styles.css");
-
             controller.getMenuPane().getChildren().add(menu);
             stage.setScene(scene);
             stage.show();
@@ -60,7 +71,6 @@ public class Viewer {
                     "An error was encountered.",
                     ButtonType.OK);
             error.showAndWait();
-            e.printStackTrace();
             stage.close();
         }
 
