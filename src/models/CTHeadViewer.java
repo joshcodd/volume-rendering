@@ -101,11 +101,40 @@ public class CTHeadViewer {
      * @param gradient The vector of the gradient of the data.
      * @return The lighting value for said pixel.
      */
-    public double getLighting(int y, int x, int ray, Vector gradient){
-        Vector lightDirection = new Vector(light1 - y, light2 - x, light3 - ray);
+    public double getLighting(int x, int y, int ray, Vector gradient){
+        Vector lightDirection = new Vector(light1 - x, light2 - y, light3 - ray);
         lightDirection.normalize();
         gradient.normalize();
         return Math.max(0, gradient.dotProduct(lightDirection));
+    }
+
+    public Vector calculateGradient(int i, int j, int z, int rayLength, String view){
+        Vector x1y1 = new Vector((i - 1), j, 0);
+        Vector x2y2= new Vector((i + 1), j, 0);
+
+        for (int ray = 0; ray < rayLength; ray++) {
+            short currentVoxel = getView(view, (i - 1), j, ray);
+            if (currentVoxel > 400) {
+                x1y1.setC(ray);
+                ray = rayLength;
+            }
+        }
+
+        for (int ray = 0; ray < rayLength; ray++) {
+            short currentVoxel = getView(view, (i + 1), j, ray);
+            if (currentVoxel > 400) {
+                x2y2.setC(ray);
+                ray = rayLength;
+            }
+        }
+
+        if (x1y1.getC() != 0 && x2y2.getC() != 0) { //central difference
+            return new Vector((x2y2.getA() - x1y1.getA()), (x2y2.getB() - x1y1.getB()), (x2y2.getC() - x1y1.getC()));
+        } else if (x1y1.getC() == 0){ //forward difference
+            return new Vector((x2y2.getA() - i), (x2y2.getB() - j), (x2y2.getC() - z));
+        } else { //backwards difference
+            return new Vector((i - x1y1.getA()), (j - x1y1.getB()), (z - x1y1.getC()));
+        }
     }
 
     /**
@@ -117,32 +146,28 @@ public class CTHeadViewer {
         int w=(int) image.getWidth(), h=(int) image.getHeight();
         PixelWriter image_writer = image.getPixelWriter();
         int rayLength = (view.equals("top")) ? ctHead.getCT_z_axis() : ctHead.getCT_x_axis();
-        Vector gradient = null;
-        int lastSample = 0;
-
 
         for (int j = 0; j<h; j++) {
             for (int i = 0; i < w; i++) {
-                boolean hitIntersection = false;
                 double alphaAccum = 1;
                 double redAccum = 0;
                 double greenAccum = 0;
                 double blueAccum = 0;
                 double L = isGradient ? 0 : 1;
 
+
                 for (int ray = 0; ray < rayLength; ray++) {
                     short currentVoxel = getView(view, i, j, ray);
-                    if (currentVoxel > 400 && !hitIntersection && isGradient){
-                        if (gradient != null) {
-                            gradient.setA(gradient.getA() - j);
-                            gradient.setB(gradient.getB() - i);
-                            gradient.setC(gradient.getC() - (double) ray);
-                            L = getLighting(j, i, ray, gradient);
-                        }
-                        hitIntersection = true;
-
-                        gradient = new Vector(j, i, ray);
-
+                    if (currentVoxel > 400  && isGradient){
+//                        if (gradient != null) {
+//                            gradient.setA(gradient.getA() - i); // swapped i j
+//                            gradient.setB(gradient.getB() - j);
+//                            gradient.setC(gradient.getC() - (double) ray);
+//                            L = getLighting(i, j, ray, gradient); //swapped i j
+//                        }
+                        L = getLighting(i, j, ray, calculateGradient(i,j,ray,rayLength,view));
+                        //gradient = new Vector(i, j, ray); //swapped i j
+                        ray = rayLength;
                     }
 
                     //Compositing accumulation.

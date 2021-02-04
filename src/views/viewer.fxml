@@ -75,9 +75,9 @@
                         <Insets bottom="10.0" />
                      </VBox.margin></Slider>
                   <Button fx:id="gradientButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0" style="-fx-padding: 10;" text="Gradient Shading" textFill="#aeaeae" />
-                  <Slider fx:id="v1" max="500.0" min="-500.0" value="12.0" />
-                  <Slider fx:id="v2" max="500.0" min="-500.0" value="12.0" />
-                  <Slider fx:id="v3" max="500.0" min="-500.0" value="12.0" />
+                  <Slider fx:id="v1" max="1500.0" min="-1500.0" value="12.0" />
+                  <Slider fx:id="v2" max="1500.0" min="-1500.0" value="12.0" />
+                  <Slider fx:id="v3" max="1500.0" min="-1500.0" value="12.0" />
                </VBox>
             </VBox>
             <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
