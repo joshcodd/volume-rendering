@@ -1,6 +1,10 @@
 package models;
 import java.io.*;
 
+/**
+ * Represents a volume. That is, a 3D data set.
+ * @author Josh Codd.
+ */
 public class Volume {
     private short[][][] volume;
     private short min, max;
@@ -8,23 +12,31 @@ public class Volume {
     private final int CT_y_axis;
     private final int CT_z_axis;
 
+    /**
+     * Creates a volume of specified size.
+     * @param x The length of the x axis.
+     * @param y The length of the y axis.
+     * @param z The length of the z axis.
+     */
     public Volume(int x, int y, int z) {
         this.CT_x_axis = x;
         this.CT_y_axis = y;
         this.CT_z_axis = z;
     }
 
-    //Function to read in the cthead data set
+    /**
+     * Populates the volume with data from file.
+     * @param filename The name of the file to read from.
+     * @param isCorrectEndian If the file is in the correct endian or not.
+     * @throws IOException If file ends prematurely/wrong size volume.
+     */
     public void ReadData(String filename, Boolean isCorrectEndian) throws IOException {
-        //File name is hardcoded here - much nicer to have a dialog to select it and capture the size from the user
         File file = new File(filename);
-        //Read the data quickly via a buffer (in C++ you can just do a single fread - I couldn't find if there is an equivalent in Java)
+        //Read the data quickly via a buffer.
         DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
-
         int i, j, k; //loop through the 3D data set
-
         min=Short.MAX_VALUE; max=Short.MIN_VALUE; //set to extreme values
-        short read; //value read in
+        short read;
         int b1, b2; //data is wrong Endian (check wikipedia) for Java so we need to swap the bytes around
 
         volume = new short[CT_z_axis][CT_y_axis][CT_x_axis]; //allocate the memory - note this is fixed for this data set
@@ -32,7 +44,7 @@ public class Volume {
         for (k=0; k<CT_z_axis; k++) {
             for (j=0; j<CT_y_axis; j++) {
                 for (i=0; i<CT_x_axis; i++) {
-                    //because the Endianess is wrong, it needs to be read byte at a time and swapped
+                    //because the Endian is wrong, it needs to be read byte at a time and swapped
                     b1 = ((int) in.readByte()) & 0xff; //the 0xff is because Java does not have unsigned types
                     b2 = ((int) in.readByte()) & 0xff; //the 0xff is because Java does not have unsigned types
 
@@ -49,31 +61,55 @@ public class Volume {
             }
         }
         System.out.println(min+" "+max); //diagnostic - for CThead this should be -1117, 2248
-        //(i.e. there are 3366 levels of grey (we are trying to display on 256 levels of grey)
-        //therefore histogram equalization would be a good thing
-        //maybe put your histogram equalization code here to set up the mapping array
     }
 
+    /**
+     * Get the voxel at specified position in volume.
+     * @param x The x location.
+     * @param y The y location.
+     * @param z The z location.
+     * @return The voxel at that location.
+     */
     public short getVoxel(int x, int y, int z) {
         return volume[x][y][z];
     }
 
+    /**
+     * Gets the minimum value in the volume.
+     * @return The minimum value.
+     */
     public short getMin() {
         return min;
     }
 
+    /**
+     * Gets the maximum value in the volume.
+     * @return The maximum value.
+     */
     public short getMax() {
         return max;
     }
 
+    /**
+     * Gets the length of the volumes X axis.
+     * @return The volumes X axis length.
+     */
     public int getCT_x_axis() {
         return CT_x_axis;
     }
 
+    /**
+     * Gets the length of the volumes Y axis.
+     * @return The volumes Y axis length.
+     */
     public int getCT_y_axis() {
         return CT_y_axis;
     }
 
+    /**
+     * Gets the length of the volumes Z axis.
+     * @return The volumes Z axis length.
+     */
     public int getCT_z_axis() {
         return CT_z_axis;
     }
