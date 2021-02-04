@@ -3,11 +3,16 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
 
+/**
+ * Represents a ct head scan viewer and the algorithms that can be carried out on them.
+ * @author Josh Codd
+ */
 public class CTHeadViewer {
     private final double CT_BACKGROUND_COLOUR = 0.043;
-    private final double TRANSPARANT = 0.043;
+    private final double TRANSPARANT = 0;
     private final Volume ctHead;
     private double opacity = 0;
+
     //TEMPORARY LIGHT SOURCE VARIABLES
     public int light1 = 50;
     public int light2 = 50;
@@ -20,6 +25,11 @@ public class CTHeadViewer {
     private final int side_width;
     private final int side_height;
 
+
+    /**
+     * Creates a CT viewer.
+     * @param volume The volume to use/display.
+     */
     public CTHeadViewer(Volume volume) {
         this.ctHead = volume;
         this.Top_width = volume.getCT_x_axis();
@@ -32,7 +42,12 @@ public class CTHeadViewer {
         this.side_height = volume.getCT_z_axis();
     }
 
-
+    /**
+     * Draws the specified slice of the CAT scan to screen.
+     * @param image The image to write to.
+     * @param slice The slice to display.
+     * @param view The direction of CAT scan to view. Options are front, side or top.
+     */
     public void drawSlice(WritableImage image, int slice, String view) {
         //Get image dimensions, and declare loop variables
         int w=(int) image.getWidth(), h=(int) image.getHeight();
@@ -42,7 +57,6 @@ public class CTHeadViewer {
         short datum;
         //Shows how to loop through each pixel and colour
         //Try to always use j for loops in y, and i for loops in x
-        //as this makes the code more readable
         for (int j=0; j<h; j++) {
             for (int i=0; i<w; i++) {
                 //at this point (i,j) is a single pixel in the image
@@ -51,7 +65,7 @@ public class CTHeadViewer {
                 //If you don't do this, your j,i could be outside the array bounds
                 //In the framework, the image is 256x256 and the data set slices are 256x256
                 //so I don't do anything - this also leaves you something to do for the assignment
-                datum = getView(view, i , j, slice); //get values from slice 76 (change this in your assignment)
+                datum = getView(view, i , j, slice);
                 //calculate the colour by performing a mapping from [min,max] -> 0 to 1 (float)
                 //Java setColor uses float values from 0 to 1 rather than 0-255 bytes for colour
                 col=(((float)datum-(float)ctHead.getMin())/((float)(ctHead.getMax()-ctHead.getMin())));
@@ -60,6 +74,14 @@ public class CTHeadViewer {
         } // row loop
     }
 
+    /**
+     *Gets the correct voxel for the direction/view you want to see.
+     * @param view The view/direction to display e.g top, side or front
+     * @param x The x value to get.
+     * @param y The y value to get.
+     * @param z The z value to get.
+     * @return The correct voxel.
+     */
     public short getView(String view, int x, int y, int z){
         if (view.equals("top")){
             return ctHead.getVoxel(z, y, x);
@@ -70,15 +92,26 @@ public class CTHeadViewer {
         }
     }
 
-    public double getLighting(int j, int i, int ray, Vector gradient){
-        double L;
-        Vector lightDirection = new Vector(light1 - j, light2 - i, light3 - ray);
+    /**
+     * Calculates the lighting/shading of a pixel.
+     * @param y The y axis location of the pixel.
+     * @param x The x axis location of the pixel.
+     * @param ray The z or ray depth location of the pixel.
+     * @param gradient The vector of the gradient of the data.
+     * @return The lighting value for said pixel.
+     */
+    public double getLighting(int y, int x, int ray, Vector gradient){
+        Vector lightDirection = new Vector(light1 - y, light2 - x, light3 - ray);
         lightDirection.normalize();
         gradient.normalize();
-        L = gradient.dotProduct(lightDirection);
-        return Math.max(0, L);
+        return Math.max(0, gradient.dotProduct(lightDirection));
     }
 
+    /**
+     * Performs volume rendering on the specified image/scan.
+     * @param image The image to write to.
+     * @param view The direction to view the scan/dataset from. i.e front, side or top.
+     */
     public void volumeRender(WritableImage image, String view){
         int w=(int) image.getWidth(), h=(int) image.getHeight();
         PixelWriter image_writer = image.getPixelWriter();
@@ -128,14 +161,20 @@ public class CTHeadViewer {
         }//row
     }
 
-    private double[] transferFunction(short datum){
+    /**
+     * The default transfer function for the default dataset. Calculates pixel colour from a
+     * voxel.
+     * @param voxel The voxel to get RGB value for.
+     * @return The RGB and opacity value for the pixel.
+     */
+    private double[] transferFunction(short voxel){
         double R, G, B, O;
-        if ((datum > -299) && (datum < 50)){
+        if ((voxel > -299) && (voxel < 50)){
             R = 1.0;
             G = 0.79;
             B = 0.6;
             O = opacity;
-        } else  if (datum > 300){
+        } else  if (voxel > 300){
             R = 1;
             G = 1;
             B = 1;
@@ -149,34 +188,66 @@ public class CTHeadViewer {
         return new double[]{R,G,B,O};
     }
 
+    /**
+     * Gets the volume of this viewer.
+     * @return The volume.
+     */
     public Volume getCtHead() {
         return ctHead;
     }
 
+    /**
+     * Sets the opacity of the skin for the transfer function.
+     * @param opacity The opacity of the skin.
+     */
     public void setOpacity(double opacity) {
         this.opacity = opacity;
     }
 
+    /**
+     * Gets the width of the top image.
+     * @return The width of the top image.
+     */
     public int getTop_width() {
         return Top_width;
     }
 
+    /**
+     * Gets the height of the top image.
+     * @return The height of the top image.
+     */
     public int getTop_height() {
         return Top_height;
     }
 
+    /**
+     * Gets the width of the front image.
+     * @return The width of the front image.
+     */
     public int getFront_width() {
         return Front_width;
     }
 
+    /**
+     * Gets the height of the front image.
+     * @return The height of the front image.
+     */
     public int getFront_height() {
         return Front_height;
     }
 
+    /**
+     * Gets the width of the side image.
+     * @return The width of the side image.
+     */
     public int getSide_width() {
         return side_width;
     }
 
+    /**
+     * Gets the height of the side image.
+     * @return The height of the side image.
+     */
     public int getSide_height() {
         return side_height;
     }
@@ -191,7 +262,6 @@ public class CTHeadViewer {
 //        double iCenter = w/2;
 //        double jCenter = h/2;
 //        double kCenter = (iCenter <= jCenter) ? iCenter : jCenter;
-//
 //
 //        double col;
 //        short datum;
@@ -216,7 +286,6 @@ public class CTHeadViewer {
 ////                        int z = (int) Math.round(newz);
 ////                        int x = (int) Math.round(newX);
 ////
-////
 ////                        if (x < w && z < w && x > -1 && z > -1) {
 ////                            datum = getView("side", x, j, z);
 ////                            col = (((float) datum - (float) ctHead.getMin()) / ((float) (ctHead.getMax() - ctHead.getMin())));
@@ -229,28 +298,20 @@ public class CTHeadViewer {
 //               double newX1 = i * Math.cos(45) + (slice) * Math.sin(45);
 //               double newz1 = i * Math.sin(45) + (slice) * Math.cos(45);
 //
-//
 //                System.out.println(slice + " " + newz1);
-//
 //
 //                int z = (int) Math.round(newz1);
 //                int x = (int) Math.round(newX1);
 //
-//
-//
-//
 //                if (x > maxX){
 //                    maxX = x;
 //                }
-//
 //                if (z > maxZ){
 //                    maxZ = z;
 //                }
-//
 //                if (x < minX){
 //                    minX = x;
 //                }
-//
 //                if (z < minZ){
 //                    minZ = z;
 //                }
@@ -266,6 +327,5 @@ public class CTHeadViewer {
 //        System.out.println(minX + " " + maxX);
 //
 //        System.out.println(minZ + " " + maxZ);
-//
 //    }
 }
