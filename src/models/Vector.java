@@ -5,9 +5,9 @@ package models;
  * @author Josh Codd.
  */
 public class Vector {
-    private int a;
-    private int b;
-    private int c;
+    private double a;
+    private double b;
+    private double c;
 
     /**
      * Creates a vector.
@@ -15,7 +15,7 @@ public class Vector {
      * @param b The second value in the vector.
      * @param c The third value in the vector.
      */
-    public Vector (int a, int b, int c){
+    public Vector (double a, double b, double c){
         this.a = a;
         this.b = b;
         this.c = c;
@@ -25,11 +25,11 @@ public class Vector {
      * Normalises the vector.
      */
     public void normalize(){
-        double normalValue = Math.sqrt((getA()^2) + (getB()^2)
-                + (getC()^2));
-        setA((int) (getA() / normalValue));
-        setB((int) (getB() / normalValue));
-        setC((int) (getC() / normalValue));
+        double normalValue = Math.sqrt((getA() * getA()) + (getB() * getB())
+                + (getC() * getC()));
+        setA((getA() / normalValue));
+        setB((getB() / normalValue));
+        setC((getC() / normalValue));
     }
 
     /**
@@ -37,11 +37,11 @@ public class Vector {
      * @param vector The second vector of the dot product.
      * @return The dot product of both vectors.
      */
-    public int dotProduct(Vector vector){
-        int dotProduct;
-        dotProduct = this.getA() * vector.getA();
-        dotProduct = dotProduct + this.getB() * vector.getB();
-        dotProduct = dotProduct + this.getC() * vector.getC();
+    public double dotProduct(Vector vector){
+        double dotProduct;
+        dotProduct = (this.getA() * vector.getA())
+                + (this.getB() * vector.getB())
+                + (this.getC() * vector.getC());
         return dotProduct;
     }
 
@@ -49,7 +49,7 @@ public class Vector {
      * Gets the first value of the vector.
      * @return The first value.
      */
-    public int getA() {
+    public double getA() {
         return a;
     }
 
@@ -57,7 +57,7 @@ public class Vector {
      * Sets the first value of the vector.
      * @param a The value to set to.
      */
-    public void setA(int a) {
+    public void setA(double a) {
         this.a = a;
     }
 
@@ -65,7 +65,7 @@ public class Vector {
      * Gets the second value of the vector.
      * @return The second value.
      */
-    public int getB() {
+    public double getB() {
         return b;
     }
 
@@ -73,7 +73,7 @@ public class Vector {
      * Sets the second value of the vector.
      * @param b The value to set to.
      */
-    public void setB(int b) {
+    public void setB(double b) {
         this.b = b;
     }
 
@@ -81,7 +81,7 @@ public class Vector {
      * Gets the third value of the vector.
      * @return The third value.
      */
-    public int getC() {
+    public double getC() {
         return c;
     }
 
@@ -89,7 +89,7 @@ public class Vector {
      * Sets the third value of the vector.
      * @param c The value to set to.
      */
-    public void setC(int c) {
+    public void setC(double c) {
         this.c = c;
     }
 }
