@@ -121,20 +121,23 @@ public class CTHeadViewer {
     public Vector calculateGradient(int i, int j, int z, int rayLength, String view){
         Vector x1y1 = new Vector((i - 1), j, 0);
         Vector x2y2= new Vector((i + 1), j, 0);
+        int width = view.equals("top") ? getTop_width() : getSide_width();
 
-        for (int ray = 0; ray < rayLength; ray++) {
-            short currentVoxel = getView(view, (i - 1), j, ray);
-            if (currentVoxel > 400) {
-                x1y1.setC(ray);
-                ray = rayLength;
+        if (i > 0 && i < (width - 1)) {
+            for (int ray = 0; ray < rayLength; ray++) {
+                short currentVoxel = getView(view, (i - 1), j, ray);
+                if (currentVoxel >= 300) {
+                    x1y1.setC(ray);
+                    ray = rayLength;
+                }
             }
-        }
 
-        for (int ray = 0; ray < rayLength; ray++) {
-            short currentVoxel = getView(view, (i + 1), j, ray);
-            if (currentVoxel > 400) {
-                x2y2.setC(ray);
-                ray = rayLength;
+            for (int ray = 0; ray < rayLength; ray++) {
+                short currentVoxel = getView(view, (i + 1), j, ray);
+                if (currentVoxel >= 300) {
+                    x2y2.setC(ray);
+                    ray = rayLength;
+                }
             }
         }
 
@@ -167,7 +170,7 @@ public class CTHeadViewer {
 
                 for (int ray = 0; ray < rayLength; ray++) {
                     short currentVoxel = getView(view, i, j, ray);
-                    if (currentVoxel > 400  && isGradient){
+                    if (currentVoxel >= 300  && isGradient){
                         Vector gradient = calculateGradient(i,j,ray,rayLength,view);
                         L = getLighting(i, j, ray, gradient);
                         ray = rayLength;
@@ -192,6 +195,7 @@ public class CTHeadViewer {
                 image_writer.setColor(i, j, Color.color(redAccum, greenAccum, blueAccum, opacity));
             }//column
         }//row
+//        System.out.println(light1 + " " + light2 + " " + light3);
     }
 
     /**
