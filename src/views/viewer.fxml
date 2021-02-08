@@ -75,6 +75,11 @@
                         <Insets bottom="10.0" />
                      </VBox.margin></Slider>
                   <Button fx:id="gradientButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0" style="-fx-padding: 10;" text="Gradient Shading" textFill="#aeaeae" />
+                  <Label text="Light source" textFill="#aeaeae">
+                     <VBox.margin>
+                        <Insets bottom="2.0" top="10.0" />
+                     </VBox.margin>
+                  </Label>
                   <Slider fx:id="lightSource" max="256" value="0" />
 
                </VBox>
