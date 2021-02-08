@@ -34,7 +34,7 @@ public class Vector {
 
     /**
      * Gets the dot product of this and another vector.
-     * @param vector The second vector of the dot product.
+     * @param vector The other vector of the dot product.
      * @return The dot product of both vectors.
      */
     public double dotProduct(Vector vector){
@@ -43,6 +43,36 @@ public class Vector {
                 + (this.getB() * vector.getB())
                 + (this.getC() * vector.getC());
         return dotProduct;
+    }
+
+    /**
+     * Gets the addition of this and another vector.
+     * @param vector The other vector of the addition.
+     * @return The addition of both vectors.
+     */
+    public Vector add(Vector vector){
+        return new Vector(this.getA() + vector.getA(),
+                this.getB() + vector.getB(), this.getC() + vector.getC());
+    }
+
+    /**
+     * Gets the subtraction of this and another vector.
+     * @param vector The other vector of the subtraction.
+     * @return The subtraction of both vectors.
+     */
+    public Vector subtract(Vector vector){
+        return new Vector(this.getA() - vector.getA(),
+                this.getB() - vector.getB(), this.getC() - vector.getC());
+    }
+
+    /**
+     * Gets the division of this and another vector.
+     * @param vector The other vector of the division.
+     * @return The division of both vectors.
+     */
+    public Vector divide(Vector vector){
+        return new Vector(this.getA() / vector.getA(),
+                this.getB() / vector.getB(), this.getC() / vector.getC());
     }
 
     /**

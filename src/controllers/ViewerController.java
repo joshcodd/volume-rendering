@@ -1,5 +1,6 @@
 package controllers;
 import javafx.fxml.FXML;
+import javafx.scene.LightBase;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
@@ -30,9 +31,8 @@ public class ViewerController {
     public StackPane thirdViewBackground;
     public StackPane menuPane;
     public Button openFileButton;
-    public Slider v1;
-    public Slider v2;
-    public Slider v3;
+    public Slider lightSource;
+
     public Button gradientButton;
 
     private Stage stage;
@@ -100,22 +100,10 @@ public class ViewerController {
             sliderValueStyle(opacitySlider);
         });
 
-        v1.valueProperty().addListener((observable, oldValue, newValue) -> {
-            ctHead.light1 = (newValue.intValue());
+        lightSource.valueProperty().addListener((observable, oldValue, newValue) -> {
+            ctHead.setLightSourceX(newValue.intValue());
             volumeRenderButton.fire();
-            sliderValueStyle(opacitySlider);
-        });
-
-        v2.valueProperty().addListener((observable, oldValue, newValue) -> {
-            ctHead.light2 = (newValue.intValue());
-            volumeRenderButton.fire();
-            sliderValueStyle(opacitySlider);
-        });
-
-        v3.valueProperty().addListener((observable, oldValue, newValue) -> {
-            ctHead.light3 = (newValue.intValue());
-            volumeRenderButton.fire();
-            sliderValueStyle(opacitySlider);
+            sliderValueStyle(lightSource);
         });
 
         gradientButton.setOnAction( e -> {

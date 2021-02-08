@@ -8,24 +8,19 @@ import javafx.scene.paint.Color;
  * @author Josh Codd
  */
 public class CTHeadViewer {
-    private final double CT_BACKGROUND_COLOUR = 0.043;
-    private final double TRANSPARANT = 0;
+    private final int TOP_WIDTH;
+    private final int TOP_HEIGHT;
+    private final int FRONT_WIDTH;
+    private final int FRONT_HEIGHT;
+    private final int SIDE_WIDTH;
+    private final int SIDE_HEIGHT;
+    private final double LIGHT_SOURCE_Y = 20;
+    private final double LIGHT_SOURCE_Z = 256;
     private final Volume ctHead;
+
     private double opacity = 0.12;
     private boolean isGradient = false;
-
-    //TEMPORARY LIGHT SOURCE VARIABLES
-    public double light1 = 50;
-    public double light2 = 50;
-    public double light3 = 50;
-
-    private final int Top_width;
-    private final int Top_height;
-    private final int Front_width;
-    private final int Front_height;
-    private final int side_width;
-    private final int side_height;
-
+    private double lightSourceX = 83;
 
     /**
      * Creates a CT viewer.
@@ -33,14 +28,14 @@ public class CTHeadViewer {
      */
     public CTHeadViewer(Volume volume) {
         this.ctHead = volume;
-        this.Top_width = volume.getCT_x_axis();
-        this.Top_height = volume.getCT_y_axis();
+        this.TOP_WIDTH = volume.getCT_x_axis();
+        this.TOP_HEIGHT = volume.getCT_y_axis();
 
-        this.Front_width = volume.getCT_x_axis();
-        this.Front_height = volume.getCT_z_axis();
+        this.FRONT_WIDTH = volume.getCT_x_axis();
+        this.FRONT_HEIGHT = volume.getCT_z_axis();
 
-        this.side_width = volume.getCT_x_axis();
-        this.side_height = volume.getCT_z_axis();
+        this.SIDE_WIDTH = volume.getCT_x_axis();
+        this.SIDE_HEIGHT = volume.getCT_z_axis();
     }
 
     /**
@@ -102,52 +97,79 @@ public class CTHeadViewer {
      * @return The lighting value for said pixel.
      */
     public double getLighting(int x, int y, int ray, Vector gradient){
-        Vector lightDirection = new Vector(light1 - x, light2 - y, light3 - ray);
+        Vector lightSourcePosition = new Vector(lightSourceX, LIGHT_SOURCE_Y, LIGHT_SOURCE_Z);
+        Vector lightDirection = lightSourcePosition.subtract(new Vector(x,y,ray));
         lightDirection.normalize();
         gradient.normalize();
         return Math.max(0, gradient.dotProduct(lightDirection));
     }
 
-
     /**
      * Calculates the gradient for the current voxel.
      * @param i The x location of voxel.
      * @param j The y location of voxel.
-     * @param z The z/ray location of voxel.
+     * @param ray The z/ray location of voxel.
      * @param rayLength Maximum length of the ray.
      * @param view The scan direction. i.e top, front or side
      * @return The gradient of the specified voxel
      */
-    public Vector calculateGradient(int i, int j, int z, int rayLength, String view){
-        Vector x1y1 = new Vector((i - 1), j, 0);
-        Vector x2y2= new Vector((i + 1), j, 0);
-        int width = view.equals("top") ? getTop_width() : getSide_width();
+    public Vector calculateGradient(int i, int j, int ray, int rayLength, String view, int w, int h){
+        int x;
+        int y;
+        int z;
 
-        if (i > 0 && i < (width - 1)) {
-            for (int ray = 0; ray < rayLength; ray++) {
-                short currentVoxel = getView(view, (i - 1), j, ray);
-                if (currentVoxel >= 300) {
-                    x1y1.setC(ray);
-                    ray = rayLength;
-                }
-            }
-
-            for (int ray = 0; ray < rayLength; ray++) {
-                short currentVoxel = getView(view, (i + 1), j, ray);
-                if (currentVoxel >= 300) {
-                    x2y2.setC(ray);
-                    ray = rayLength;
-                }
-            }
+        if (i > 0 && i < (w - 1)){
+            int x1 = getView(view,i-1,j,ray);
+            int x2 = getView(view,i+1,j,ray);
+            x = x2 - x1;
+        } else if (i <= 0) {
+            int x2 = getView(view,i+1,j,ray);
+            x = x2 - getView(view, i, j, ray);
+        } else {
+            int x1 = getView(view,i-1,j,ray);
+            x = getView(view, i, j, ray) - x1;
         }
 
-        if (x1y1.getC() != 0 && x2y2.getC() != 0) { //central difference
-            return new Vector((x2y2.getA() - x1y1.getA()), (x2y2.getB() - x1y1.getB()), (x2y2.getC() - x1y1.getC()));
-        } else if (x1y1.getC() == 0){ //forward difference
-            return new Vector((x2y2.getA() - i), (x2y2.getB() - j), (x2y2.getC() - z));
-        } else { //backwards difference
-            return new Vector((i - x1y1.getA()), (j - x1y1.getB()), (z - x1y1.getC()));
+        if (j > 0 && j < (h - 1)){
+            int y1 = getView(view,i,j-1,ray);
+            int y2 = getView(view,i,j+1,ray);
+            y = y2 - y1;
+        } else if (j <= 0) {
+            int y2 = getView(view,i,j+1,ray);
+            y = y2 - getView(view, i, j, ray);
+        } else {
+            int y1 = getView(view,i,j-1,ray);
+            y = getView(view, i, j, ray) - y1;
         }
+
+        if (ray > 0 && ray < (rayLength - 1)){
+            int z1 = getView(view,i,j,ray-1);
+            int z2 = getView(view,i,j,ray+1);
+            z = z2 - z1;
+        } else if (ray <= 0) {
+            int z2 = getView(view,i,j,ray+1);
+            z = z2 - getView(view, i, j, ray);
+        } else {
+            int z1 = getView(view,i,j,ray-1);
+            z = getView(view, i, j, ray) - z1;
+        }
+        return new Vector(x, y, z);
+    }
+
+//    public Double linearInterpolationColour(Short v1, Short v2, int axis, a){
+//        //pos by colour
+//
+//        double v = v1 + (v2 - v1) * (()/())
+//
+//
+//        return new Vector(x,y, 0);
+//    }
+
+    public double linearInterpolationPos(Short v, Short v1, Short v2, int x1, int x2){
+        //pos by colour
+        double x = x1 + (x2 - x1 * ((v - v1)/(v2 - v1)));
+
+        return x;
     }
 
     /**
@@ -166,36 +188,30 @@ public class CTHeadViewer {
                 double redAccum = 0;
                 double greenAccum = 0;
                 double blueAccum = 0;
-                double L = isGradient ? 0 : 1;
+                boolean hitBone = false;
+                double L = 1;
 
-                for (int ray = 0; ray < rayLength; ray++) {
+                for (int ray = 0; ray < (rayLength - 1) && !hitBone; ray++) {
                     short currentVoxel = getView(view, i, j, ray);
-                    if (currentVoxel >= 300  && isGradient){
-                        Vector gradient = calculateGradient(i,j,ray,rayLength,view);
+                    if (currentVoxel > 400 && isGradient){
+                        Vector gradient = calculateGradient(i,j,ray,rayLength,view, w, h);
                         L = getLighting(i, j, ray, gradient);
-                        ray = rayLength;
+                        hitBone = true;
                     }
 
-                    //Compositing accumulation.
-                    double[] colour = transferFunction(currentVoxel);
-                    double sigma = colour[3];
-                    redAccum = Math.min(redAccum + (alphaAccum * sigma * L * colour[0]), 1);
-                    greenAccum = Math.min(greenAccum + (alphaAccum * sigma * L * colour[1]), 1);
-                    blueAccum = Math.min(blueAccum + (alphaAccum * sigma * L * colour[2]), 1);
-                    alphaAccum = alphaAccum * (1 - sigma);
+                    if (!isGradient || hitBone){
+                        double[] colour = transferFunction(currentVoxel);
+                        double sigma = colour[3];
+                        redAccum = Math.min(redAccum + (alphaAccum * sigma * L * colour[0]), 1);
+                        greenAccum = Math.min(greenAccum + (alphaAccum * sigma * L * colour[1]), 1);
+                        blueAccum = Math.min(blueAccum + (alphaAccum * sigma * L * colour[2]), 1);
+                        alphaAccum = alphaAccum * (1 - sigma);
+                    }
                 }
 
-                //Composite final black background.
-                redAccum = redAccum + (alphaAccum * CT_BACKGROUND_COLOUR * L * TRANSPARANT);
-                greenAccum = greenAccum + (alphaAccum * CT_BACKGROUND_COLOUR * L * TRANSPARANT);
-                blueAccum = blueAccum + (alphaAccum * CT_BACKGROUND_COLOUR * L * TRANSPARANT);
-                alphaAccum = alphaAccum * (TRANSPARANT);
-
-                double opacity = 1 - alphaAccum;
-                image_writer.setColor(i, j, Color.color(redAccum, greenAccum, blueAccum, opacity));
+                image_writer.setColor(i, j, Color.color(redAccum, greenAccum, blueAccum, 1.0));
             }//column
         }//row
-//        System.out.println(light1 + " " + light2 + " " + light3);
     }
 
     /**
@@ -254,7 +270,7 @@ public class CTHeadViewer {
      * @return The width of the top image.
      */
     public int getTop_width() {
-        return Top_width;
+        return TOP_WIDTH;
     }
 
     /**
@@ -262,7 +278,7 @@ public class CTHeadViewer {
      * @return The height of the top image.
      */
     public int getTop_height() {
-        return Top_height;
+        return TOP_HEIGHT;
     }
 
     /**
@@ -270,7 +286,7 @@ public class CTHeadViewer {
      * @return The width of the front image.
      */
     public int getFront_width() {
-        return Front_width;
+        return FRONT_WIDTH;
     }
 
     /**
@@ -278,7 +294,7 @@ public class CTHeadViewer {
      * @return The height of the front image.
      */
     public int getFront_height() {
-        return Front_height;
+        return FRONT_HEIGHT;
     }
 
     /**
@@ -286,7 +302,7 @@ public class CTHeadViewer {
      * @return The width of the side image.
      */
     public int getSide_width() {
-        return side_width;
+        return SIDE_WIDTH;
     }
 
     /**
@@ -294,8 +310,18 @@ public class CTHeadViewer {
      * @return The height of the side image.
      */
     public int getSide_height() {
-        return side_height;
+        return SIDE_HEIGHT;
     }
+
+    /**
+     * Sets the location of the light source along the X axis.
+     * @param position The location along the X axis.
+     */
+    public void setLightSourceX(int position) {
+        this.lightSourceX = position;
+    }
+
+
 
 
 //CODE FOR POTENTIALLY ROTATING HEAD 45 DEGREES
