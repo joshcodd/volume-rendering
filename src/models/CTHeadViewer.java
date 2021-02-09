@@ -156,20 +156,14 @@ public class CTHeadViewer {
         return new Vector(x, y, z);
     }
 
-//    public Double linearInterpolationColour(Short v1, Short v2, int axis, a){
-//        //pos by colour
-//
-//        double v = v1 + (v2 - v1) * (()/())
-//
-//
-//        return new Vector(x,y, 0);
-//    }
+    public int linearInterpolationColour(Short v1, Short v2, int x1, int x, int x2){
+        //colour by pos
+        return v1 + (v2 - v1) * ((x-x1)/(x2-x1));
+    }
 
-    public double linearInterpolationPos(Short v, Short v1, Short v2, int x1, int x2){
+    public double linearInterpolationPos(int v, int v1, int v2, int x1, int x2){
         //pos by colour
-        double x = x1 + (x2 - x1 * ((v - v1)/(v2 - v1)));
-
-        return x;
+        return x1 + (x2 - x1 * ((double)(v - v1)/((double)(v2 - v1))));
     }
 
     /**
@@ -191,10 +185,14 @@ public class CTHeadViewer {
                 boolean hitBone = false;
                 double L = 1;
 
+
                 for (int ray = 0; ray < (rayLength - 1) && !hitBone; ray++) {
                     short currentVoxel = getView(view, i, j, ray);
                     if (currentVoxel > 400 && isGradient){
-                        Vector gradient = calculateGradient(i,j,ray,rayLength,view, w, h);
+                        //short prev = getView(view, i,j,ray - 1);
+                        //double interZ = linearInterpolationPos(400, prev, currentVoxel, ray-1, ray) ;
+
+                        Vector gradient = calculateGradient(i,j, ray,rayLength,view, w, h);
                         L = getLighting(i, j, ray, gradient);
                         hitBone = true;
                     }
