@@ -1,6 +1,5 @@
 package controllers;
 import javafx.fxml.FXML;
-import javafx.scene.LightBase;
 import javafx.scene.control.Button;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
@@ -34,6 +33,7 @@ public class ViewerController {
     public Slider lightSource;
 
     public Button gradientButton;
+    public Button gradientInterpolationButton;
 
     private Stage stage;
     private CTHeadViewer ctHead;
@@ -107,7 +107,12 @@ public class ViewerController {
         });
 
         gradientButton.setOnAction( e -> {
-            ctHead.toggleGradient();
+            ctHead.setGradientShading(!ctHead.getGradientShading());
+            volumeRenderButton.fire();
+        });
+
+        gradientInterpolationButton.setOnAction( e -> {
+            ctHead.setGradientInterpolation(!ctHead.getGradientInterpolation());
             volumeRenderButton.fire();
         });
 
