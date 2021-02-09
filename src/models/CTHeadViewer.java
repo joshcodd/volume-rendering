@@ -1,10 +1,12 @@
 package models;
-import javafx.scene.image.WritableImage;
+
 import javafx.scene.image.PixelWriter;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 
 /**
  * Represents a ct head scan viewer and the algorithms that can be carried out on them.
+ *
  * @author Josh Codd
  */
 public class CTHeadViewer {
@@ -20,6 +22,7 @@ public class CTHeadViewer {
 
     private double opacity = 0.12;
     private boolean isGradient = false;
+    private boolean isGradientInterpolation = false;
     private double lightSourceX = 83;
 
     /**
@@ -30,10 +33,8 @@ public class CTHeadViewer {
         this.ctHead = volume;
         this.TOP_WIDTH = volume.getCT_x_axis();
         this.TOP_HEIGHT = volume.getCT_y_axis();
-
         this.FRONT_WIDTH = volume.getCT_x_axis();
         this.FRONT_HEIGHT = volume.getCT_z_axis();
-
         this.SIDE_WIDTH = volume.getCT_x_axis();
         this.SIDE_HEIGHT = volume.getCT_z_axis();
     }
@@ -46,26 +47,25 @@ public class CTHeadViewer {
      */
     public void drawSlice(WritableImage image, int slice, String view) {
         //Get image dimensions, and declare loop variables
-        int w=(int) image.getWidth(), h=(int) image.getHeight();
+        int w = (int) image.getWidth(), h = (int) image.getHeight();
         PixelWriter image_writer = image.getPixelWriter();
-
         double col;
         short datum;
-        //Shows how to loop through each pixel and colour
+
         //Try to always use j for loops in y, and i for loops in x
-        for (int j=0; j<h; j++) {
-            for (int i=0; i<w; i++) {
+        for (int j = 0; j < h; j++) {
+            for (int i = 0; i < w; i++) {
                 //at this point (i,j) is a single pixel in the image
                 //here you would need to do something to (i,j) if the image size
                 //does not match the slice size (e.g. during an image resizing operation
                 //If you don't do this, your j,i could be outside the array bounds
                 //In the framework, the image is 256x256 and the data set slices are 256x256
                 //so I don't do anything - this also leaves you something to do for the assignment
-                datum = getView(view, i , j, slice);
+                datum = getVoxel(view, i, j, slice);
                 //calculate the colour by performing a mapping from [min,max] -> 0 to 1 (float)
                 //Java setColor uses float values from 0 to 1 rather than 0-255 bytes for colour
-                col=(((float)datum-(float)ctHead.getMin())/((float)(ctHead.getMax()-ctHead.getMin())));
-                image_writer.setColor(i, j, Color.color(col,col,col, 1.0));
+                col = (((float) datum - (float) ctHead.getMin()) / ((float) (ctHead.getMax() - ctHead.getMin())));
+                image_writer.setColor(i, j, Color.color(col, col, col, 1.0));
             } // column loop
         } // row loop
     }
@@ -78,10 +78,10 @@ public class CTHeadViewer {
      * @param z The z value to get.
      * @return The correct voxel.
      */
-    public short getView(String view, int x, int y, int z){
-        if (view.equals("top")){
+    public short getVoxel(String view, int x, int y, int z) {
+        if (view.equals("top")) {
             return ctHead.getVoxel(z, y, x);
-        } else if (view.equals("side")){
+        } else if (view.equals("side")) {
             return ctHead.getVoxel(y, x, z);
         } else {
             return ctHead.getVoxel(y, z, x);
@@ -96,16 +96,16 @@ public class CTHeadViewer {
      * @param gradient The vector of the gradient of the data.
      * @return The lighting value for said pixel.
      */
-    public double getLighting(int x, int y, int ray, Vector gradient){
+    public double getLighting(int x, int y, int ray, Vector gradient) {
         Vector lightSourcePosition = new Vector(lightSourceX, LIGHT_SOURCE_Y, LIGHT_SOURCE_Z);
-        Vector lightDirection = lightSourcePosition.subtract(new Vector(x,y,ray));
+        Vector lightDirection = lightSourcePosition.subtract(new Vector(x, y, ray));
         lightDirection.normalize();
         gradient.normalize();
         return Math.max(0, gradient.dotProduct(lightDirection));
     }
 
     /**
-     * Calculates the gradient for the current voxel.
+     * Calculates the gradient for the current voxel at integer positions.
      * @param i The x location of voxel.
      * @param j The y location of voxel.
      * @param ray The z/ray location of voxel.
@@ -113,57 +113,147 @@ public class CTHeadViewer {
      * @param view The scan direction. i.e top, front or side
      * @return The gradient of the specified voxel
      */
-    public Vector calculateGradient(int i, int j, int ray, int rayLength, String view, int w, int h){
-        int x;
-        int y;
-        int z;
+    public Vector calculateGradient(int i, int j, int ray, int rayLength, String view, int w, int h) {
+        double x;
+        double y;
+        double z;
 
-        if (i > 0 && i < (w - 1)){
-            int x1 = getView(view,i-1,j,ray);
-            int x2 = getView(view,i+1,j,ray);
+        if (i > 0 && i < (w - 1)) {
+            double x1 = getVoxel(view, i - 1, j, ray);
+            double x2 = getVoxel(view, i + 1, j, ray);
             x = x2 - x1;
         } else if (i <= 0) {
-            int x2 = getView(view,i+1,j,ray);
-            x = x2 - getView(view, i, j, ray);
+            double x2 = getVoxel(view, i + 1, j, ray);
+            x = x2 - getVoxel(view, i, j, ray);
         } else {
-            int x1 = getView(view,i-1,j,ray);
-            x = getView(view, i, j, ray) - x1;
+            double x1 = getVoxel(view, i - 1, j, ray);
+            x = getVoxel(view, i, j, ray) - x1;
         }
 
-        if (j > 0 && j < (h - 1)){
-            int y1 = getView(view,i,j-1,ray);
-            int y2 = getView(view,i,j+1,ray);
+        if (j > 0 && j < (h - 1)) {
+            double y1 = getVoxel(view, i, j - 1, ray);
+            double y2 = getVoxel(view, i, j + 1, ray);
             y = y2 - y1;
         } else if (j <= 0) {
-            int y2 = getView(view,i,j+1,ray);
-            y = y2 - getView(view, i, j, ray);
+            double y2 = getVoxel(view, i, j + 1, ray);
+            y = y2 - getVoxel(view, i, j, ray);
         } else {
-            int y1 = getView(view,i,j-1,ray);
-            y = getView(view, i, j, ray) - y1;
+            double y1 = getVoxel(view, i, j - 1, ray);
+            y = getVoxel(view, i, j, ray) - y1;
         }
 
-        if (ray > 0 && ray < (rayLength - 1)){
-            int z1 = getView(view,i,j,ray-1);
-            int z2 = getView(view,i,j,ray+1);
+        if (ray > 0 && ray < (rayLength - 1)) {
+            double z1 = getVoxel(view, i, j, ray - 1);
+            double z2 = getVoxel(view, i, j, ray + 1);
             z = z2 - z1;
         } else if (ray <= 0) {
-            int z2 = getView(view,i,j,ray+1);
-            z = z2 - getView(view, i, j, ray);
+            double z2 = getVoxel(view, i, j, ray + 1);
+            z = z2 - getVoxel(view, i, j, ray);
         } else {
-            int z1 = getView(view,i,j,ray-1);
-            z = getView(view, i, j, ray) - z1;
+            double z1 = getVoxel(view, i, j, ray - 1);
+            z = getVoxel(view, i, j, ray) - z1;
         }
         return new Vector(x, y, z);
     }
 
-    public int linearInterpolationColour(Short v1, Short v2, int x1, int x, int x2){
-        //colour by pos
-        return v1 + (v2 - v1) * ((x-x1)/(x2-x1));
+    /**
+     * Calculates the gradient for the current voxel of a non integer position.
+     * @param i The x location of voxel.
+     * @param j The y location of voxel.
+     * @param ray The exact z/ray location of voxel.
+     * @param rayLength Maximum length of the ray.
+     * @param view The scan direction. i.e top, front or side
+     * @return The gradient of the specified voxel
+     */
+    public Vector calculateGradient(int i, int j, double ray, int rayLength, String view, int w, int h) {
+        double x;
+        double y;
+        double z;
+
+        if (i > 0 && i < (w - 1)) {
+            double x1 = getVoxelInterpolation(view, i - 1, j, ray);
+            double x2 = getVoxelInterpolation(view, i + 1, j, ray);
+            x = x2 - x1;
+        } else if (i <= 0) {
+            double x2 = getVoxelInterpolation(view, i + 1, j, ray);
+            x = x2 - getVoxelInterpolation(view, i, j, ray);
+        } else {
+            double x1 = getVoxelInterpolation(view, i - 1, j, ray);
+            x = getVoxelInterpolation(view, i, j, ray) - x1;
+        }
+
+        if (j > 0 && j < (h - 1)) {
+            double y1 = getVoxelInterpolation(view, i, j - 1, ray);
+            double y2 = getVoxelInterpolation(view, i, j + 1, ray);
+            y = y2 - y1;
+        } else if (j <= 0) {
+            double y2 = getVoxelInterpolation(view, i, j + 1, ray);
+            y = y2 - getVoxelInterpolation(view, i, j, ray);
+        } else {
+            double y1 = getVoxelInterpolation(view, i, j - 1, ray);
+            y = getVoxelInterpolation(view, i, j, ray) - y1;
+        }
+
+        if (ray > 0 && ray < (rayLength - 1)) {
+            double z1 = getVoxelInterpolation(view, i, j, ray - 1);
+            double z2 = getVoxelInterpolation(view, i, j, ray + 1);
+            z = z2 - z1;
+        } else if (ray <= 0) {
+            double z2 = getVoxelInterpolation(view, i, j, ray + 1);
+            z = z2 - getVoxelInterpolation(view, i, j, ray);
+        } else {
+            double z1 = getVoxelInterpolation(view, i, j, ray - 1);
+            z = getVoxelInterpolation(view, i, j, ray) - z1;
+        }
+        return new Vector(x, y, z);
     }
 
-    public double linearInterpolationPos(int v, int v1, int v2, int x1, int x2){
-        //pos by colour
-        return x1 + (x2 - x1 * ((double)(v - v1)/((double)(v2 - v1))));
+    /**
+     * Gets the voxel at a non integer position.
+     * @param view The direction viewing the ct image from.
+     * @param x The x value to get.
+     * @param y The y value to get.
+     * @param z The non integer z value to get.
+     * @return Voxel at non-integer position.
+     */
+    public double getVoxelInterpolation(String view, int x, int y, double z) {
+        int z1 = (int) Math.floor(z);
+        int z2 = (int) Math.ceil(z);
+        short v1 = getVoxel(view, x, y, z1);
+        short v2 = getVoxel(view, x, y, z2);
+        return linearInterpolationColour(v1, v2, z1, z, z2);
+    }
+
+    /**
+     * Calculates the voxel at a non-integer position.
+     * @param v1 The voxel at the previous integer position.
+     * @param v2 The voxel at the following integer position.
+     * @param x1 The integer position before.
+     * @param x The non-integer position to find.
+     * @param x2 The integer position after.
+     * @return The voxel value at non integer position X.
+     */
+    public double linearInterpolationColour(Short v1, Short v2, int x1, double x, int x2) {
+        double dividend = x - x1;
+        double divisor = x2 - x1;
+        double quotient = dividend / divisor;
+        return (v1 + (v2 - v1) * quotient);
+    }
+
+    /**
+     * Calculates the non-integer position of a specified value within two integer positions.
+     * @param v The value to get the position of.
+     * @param v1 The value at the previous integer position.
+     * @param v2 The value at the following integer position.
+     * @param x1 The previous integer position.
+     * @param x2 The following integer position.
+     * @return The non integer position of the specified value.
+     */
+    public double linearInterpolationPosition(int v, int v1, int v2, int x1, int x2) {
+        double dividend = v - v1;
+        double divisor = v2 - v1;
+        double quotient = dividend / divisor;
+        return x1 + (x2 - x1) * quotient;
     }
 
     /**
@@ -171,12 +261,12 @@ public class CTHeadViewer {
      * @param image The image to write to.
      * @param view The direction to view the scan/dataset from. i.e front, side or top.
      */
-    public void volumeRender(WritableImage image, String view){
-        int w=(int) image.getWidth(), h=(int) image.getHeight();
+    public void volumeRender(WritableImage image, String view) {
+        int w = (int) image.getWidth(), h = (int) image.getHeight();
         PixelWriter image_writer = image.getPixelWriter();
         int rayLength = (view.equals("top")) ? ctHead.getCT_z_axis() : ctHead.getCT_x_axis();
 
-        for (int j = 0; j<h; j++) {
+        for (int j = 0; j < h; j++) {
             for (int i = 0; i < w; i++) {
                 double alphaAccum = 1;
                 double redAccum = 0;
@@ -185,19 +275,26 @@ public class CTHeadViewer {
                 boolean hitBone = false;
                 double L = 1;
 
-
                 for (int ray = 0; ray < (rayLength - 1) && !hitBone; ray++) {
-                    short currentVoxel = getView(view, i, j, ray);
-                    if (currentVoxel > 400 && isGradient){
-                        //short prev = getView(view, i,j,ray - 1);
-                        //double interZ = linearInterpolationPos(400, prev, currentVoxel, ray-1, ray) ;
+                    short currentVoxel = getVoxel(view, i, j, ray);
+                    if (currentVoxel > 400 && isGradient) {
+                        Vector gradient;
+                        if (isGradientInterpolation) {
+                            double actualIntersection;
+                            int prevRay = (ray > 0) ? (ray - 1) : ray;
+                            short prevVoxel = getVoxel(view, i, j, prevRay);
+                            actualIntersection =
+                                    linearInterpolationPosition(400, prevVoxel, currentVoxel, prevRay, ray);
+                            gradient = calculateGradient(i, j, actualIntersection, rayLength, view, w, h);
+                        } else {
+                            gradient = calculateGradient(i, j, ray, rayLength, view, w, h);
+                        }
 
-                        Vector gradient = calculateGradient(i,j, ray,rayLength,view, w, h);
                         L = getLighting(i, j, ray, gradient);
                         hitBone = true;
                     }
 
-                    if (!isGradient || hitBone){
+                    if (!isGradient || hitBone) {
                         double[] colour = transferFunction(currentVoxel);
                         double sigma = colour[3];
                         redAccum = Math.min(redAccum + (alphaAccum * sigma * L * colour[0]), 1);
@@ -218,14 +315,14 @@ public class CTHeadViewer {
      * @param voxel The voxel to get RGB value for.
      * @return The RGB and opacity value for the pixel.
      */
-    private double[] transferFunction(short voxel){
+    private double[] transferFunction(short voxel) {
         double R, G, B, O;
-        if ((voxel > -299) && (voxel < 50)){
+        if ((voxel > -299) && (voxel < 50)) {
             R = 1.0;
             G = 0.79;
             B = 0.6;
             O = opacity;
-        } else  if (voxel > 300){
+        } else if (voxel > 300) {
             R = 1;
             G = 1;
             B = 1;
@@ -236,7 +333,7 @@ public class CTHeadViewer {
             B = 0;
             O = 0;
         }
-        return new double[]{R,G,B,O};
+        return new double[]{R, G, B, O};
     }
 
     /**
@@ -256,11 +353,35 @@ public class CTHeadViewer {
     }
 
     /**
-     * Toggles gradient shading.
+     * Sets if gradient shading should be used.
+     * @param isGradient If gradient shading should be used.
      */
-    public void toggleGradient() {
-        this.isGradient = !isGradient;
-        System.out.println(isGradient);
+    public void setGradientShading(boolean isGradient) {
+        this.isGradient = isGradient;
+    }
+
+    /**
+     * Gets if gradient shading should be used.
+     * @return If gradient shading should be used.
+     */
+    public boolean getGradientShading() {
+        return this.isGradient;
+    }
+
+    /**
+     * Sets if gradient shading interpolation should be used.
+     * @param isGradientInterpolation If interpolation should be used.
+     */
+    public void setGradientInterpolation(boolean isGradientInterpolation) {
+        this.isGradientInterpolation = isGradientInterpolation;
+    }
+
+    /**
+     * Gets if gradient shading should be used.
+     * @return If gradient shading should be used.
+     */
+    public boolean getGradientInterpolation() {
+        return this.isGradientInterpolation;
     }
 
     /**
