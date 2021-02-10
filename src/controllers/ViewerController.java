@@ -113,7 +113,10 @@ public class ViewerController {
 
         gradientInterpolationButton.setOnAction( e -> {
             ctHead.setGradientInterpolation(!ctHead.getGradientInterpolation());
+            ctHead.setGradientShading(true);
             volumeRenderButton.fire();
+            String value = ctHead.getGradientInterpolation() ? "On" : "Off";
+            gradientInterpolationButton.setText("Interpolation: " + value);
         });
 
         openFileButton.setOnAction(e -> menu.getRoot().setVisible(!menu.getRoot().isVisible()));
