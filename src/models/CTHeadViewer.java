@@ -1,12 +1,11 @@
 package models;
-
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import sun.lwawt.macosx.CSystemTray;
 
 /**
  * Represents a ct head scan viewer and the algorithms that can be carried out on them.
- *
  * @author Josh Codd
  */
 public class CTHeadViewer {
@@ -19,7 +18,6 @@ public class CTHeadViewer {
     private final double LIGHT_SOURCE_Y = 20;
     private final double LIGHT_SOURCE_Z = 256;
     private final Volume ctHead;
-
     private double opacity = 0.12;
     private boolean isGradient = false;
     private boolean isGradientInterpolation = false;
@@ -46,24 +44,14 @@ public class CTHeadViewer {
      * @param view The direction of CAT scan to view. Options are front, side or top.
      */
     public void drawSlice(WritableImage image, int slice, String view) {
-        //Get image dimensions, and declare loop variables
         int w = (int) image.getWidth(), h = (int) image.getHeight();
         PixelWriter image_writer = image.getPixelWriter();
         double col;
         short datum;
 
-        //Try to always use j for loops in y, and i for loops in x
         for (int j = 0; j < h; j++) {
             for (int i = 0; i < w; i++) {
-                //at this point (i,j) is a single pixel in the image
-                //here you would need to do something to (i,j) if the image size
-                //does not match the slice size (e.g. during an image resizing operation
-                //If you don't do this, your j,i could be outside the array bounds
-                //In the framework, the image is 256x256 and the data set slices are 256x256
-                //so I don't do anything - this also leaves you something to do for the assignment
                 datum = getVoxel(view, i, j, slice);
-                //calculate the colour by performing a mapping from [min,max] -> 0 to 1 (float)
-                //Java setColor uses float values from 0 to 1 rather than 0-255 bytes for colour
                 col = (((float) datum - (float) ctHead.getMin()) / ((float) (ctHead.getMax() - ctHead.getMin())));
                 image_writer.setColor(i, j, Color.color(col, col, col, 1.0));
             } // column loop
@@ -73,18 +61,18 @@ public class CTHeadViewer {
     /**
      *Gets the correct voxel for the direction/view you want to see.
      * @param view The view/direction to display e.g top, side or front
-     * @param x The x value to get.
-     * @param y The y value to get.
-     * @param z The z value to get.
+     * @param i The x value to get.
+     * @param j The y value to get.
+     * @param k The z value to get.
      * @return The correct voxel.
      */
-    public short getVoxel(String view, int x, int y, int z) {
+    public short getVoxel(String view, int i, int j, int k) {
         if (view.equals("top")) {
-            return ctHead.getVoxel(z, y, x);
+            return ctHead.getVoxel(k, j, i);
         } else if (view.equals("side")) {
-            return ctHead.getVoxel(y, x, z);
+            return ctHead.getVoxel(j, i, k);
         } else {
-            return ctHead.getVoxel(y, z, x);
+            return ctHead.getVoxel(j, k, i);
         }
     }
 
@@ -93,41 +81,39 @@ public class CTHeadViewer {
      * @param y The y axis location of the pixel.
      * @param x The x axis location of the pixel.
      * @param ray The z or ray depth location of the pixel.
-     * @param gradient The vector of the gradient of the data.
+     * @param surfaceNormal The surface normal of the data.
      * @return The lighting value for said pixel.
      */
-    public double getLighting(int x, int y, int ray, Vector gradient) {
+    public double getLighting(int x, int y, double ray, Vector surfaceNormal) {
         Vector lightSourcePosition = new Vector(lightSourceX, LIGHT_SOURCE_Y, LIGHT_SOURCE_Z);
         Vector lightDirection = lightSourcePosition.subtract(new Vector(x, y, ray));
         lightDirection.normalize();
-        gradient.normalize();
-        return Math.max(0, gradient.dotProduct(lightDirection));
+        surfaceNormal.normalize();
+        return Math.max(0, surfaceNormal.dotProduct(lightDirection));
     }
 
     /**
-     * Calculates the gradient for the current voxel at integer positions.
+     * Calculates the surface normal for the current voxel at integer positions.
      * @param i The x location of voxel.
      * @param j The y location of voxel.
      * @param ray The z/ray location of voxel.
      * @param rayLength Maximum length of the ray.
      * @param view The scan direction. i.e top, front or side
-     * @return The gradient of the specified voxel
+     * @return The surface normal of the specified voxel
      */
-    public Vector calculateGradient(int i, int j, int ray, int rayLength, String view, int w, int h) {
-        double x;
-        double y;
-        double z;
-
+    public Vector getSurfaceNormal(int i, int j, int ray, int rayLength, String view, int w, int h) {
+        double x, y, z;
+        short currentVoxel = getVoxel(view, i, j, ray);
         if (i > 0 && i < (w - 1)) {
             double x1 = getVoxel(view, i - 1, j, ray);
             double x2 = getVoxel(view, i + 1, j, ray);
             x = x2 - x1;
         } else if (i <= 0) {
             double x2 = getVoxel(view, i + 1, j, ray);
-            x = x2 - getVoxel(view, i, j, ray);
+            x = x2 - currentVoxel;
         } else {
             double x1 = getVoxel(view, i - 1, j, ray);
-            x = getVoxel(view, i, j, ray) - x1;
+            x = currentVoxel - x1;
         }
 
         if (j > 0 && j < (h - 1)) {
@@ -136,10 +122,10 @@ public class CTHeadViewer {
             y = y2 - y1;
         } else if (j <= 0) {
             double y2 = getVoxel(view, i, j + 1, ray);
-            y = y2 - getVoxel(view, i, j, ray);
+            y = y2 - currentVoxel;
         } else {
             double y1 = getVoxel(view, i, j - 1, ray);
-            y = getVoxel(view, i, j, ray) - y1;
+            y = currentVoxel - y1;
         }
 
         if (ray > 0 && ray < (rayLength - 1)) {
@@ -148,62 +134,61 @@ public class CTHeadViewer {
             z = z2 - z1;
         } else if (ray <= 0) {
             double z2 = getVoxel(view, i, j, ray + 1);
-            z = z2 - getVoxel(view, i, j, ray);
+            z = z2 - currentVoxel;
         } else {
             double z1 = getVoxel(view, i, j, ray - 1);
-            z = getVoxel(view, i, j, ray) - z1;
+            z = currentVoxel - z1;
         }
         return new Vector(x, y, z);
     }
 
     /**
-     * Calculates the gradient for the current voxel of a non integer position.
+     * Calculates the surface normal for the current voxel of a non integer position.
      * @param i The x location of voxel.
      * @param j The y location of voxel.
      * @param ray The exact z/ray location of voxel.
      * @param rayLength Maximum length of the ray.
      * @param view The scan direction. i.e top, front or side
-     * @return The gradient of the specified voxel
+     * @return The surface normal of the specified voxel
      */
-    public Vector calculateGradient(int i, int j, double ray, int rayLength, String view, int w, int h) {
-        double x;
-        double y;
-        double z;
+    public Vector getSurfaceNormal(int i, int j, double ray, int rayLength, String view, int w, int h) {
+        double x, y, z;
+        double currentVoxel = getRealVoxel(view, i, j, ray);
 
         if (i > 0 && i < (w - 1)) {
-            double x1 = getVoxelInterpolation(view, i - 1, j, ray);
-            double x2 = getVoxelInterpolation(view, i + 1, j, ray);
+            double x1 = getRealVoxel(view, i - 1, j, ray);
+            double x2 = getRealVoxel(view, i + 1, j, ray);
             x = x2 - x1;
         } else if (i <= 0) {
-            double x2 = getVoxelInterpolation(view, i + 1, j, ray);
-            x = x2 - getVoxelInterpolation(view, i, j, ray);
+            double x2 = getRealVoxel(view, i + 1, j, ray);
+            x = x2 - currentVoxel;
         } else {
-            double x1 = getVoxelInterpolation(view, i - 1, j, ray);
-            x = getVoxelInterpolation(view, i, j, ray) - x1;
+            double x1 = getRealVoxel(view, i - 1, j, ray);
+            x = currentVoxel - x1;
         }
 
         if (j > 0 && j < (h - 1)) {
-            double y1 = getVoxelInterpolation(view, i, j - 1, ray);
-            double y2 = getVoxelInterpolation(view, i, j + 1, ray);
+            double y1 = getRealVoxel(view, i, j - 1, ray);
+            double y2 = getRealVoxel(view, i, j + 1, ray);
             y = y2 - y1;
         } else if (j <= 0) {
-            double y2 = getVoxelInterpolation(view, i, j + 1, ray);
-            y = y2 - getVoxelInterpolation(view, i, j, ray);
+            double y2 = getRealVoxel(view, i, j + 1, ray);
+            y = y2 -currentVoxel;
         } else {
-            double y1 = getVoxelInterpolation(view, i, j - 1, ray);
-            y = getVoxelInterpolation(view, i, j, ray) - y1;
+            double y1 = getRealVoxel(view, i, j - 1, ray);
+            y = currentVoxel - y1;
         }
 
-        if (ray >= 1 && ray < (rayLength - 1)) {
-            double z1 = getVoxelInterpolation(view, i, j, ray - 1);
-            double z2 = getVoxelInterpolation(view, i, j, ray + 1);
+        if (ray >= 1 && ray < (rayLength - 2)) {
+            double z1 = getRealVoxel(view, i, j, ray - 1.0);
+            double z2 = getRealVoxel(view, i, j, ray + 1.0);
             z = z2 - z1;
         } else if (ray <= 1) {
-            double z2 = getVoxelInterpolation(view, i, j, ray + 1);
-            z = z2 - getVoxelInterpolation(view, i, j, ray);
+            double z2 = getRealVoxel(view, i, j, ray + 1.0);
+            z = z2 - currentVoxel;
         } else {
-            double z1 = getVoxelInterpolation(view, i, j, ray - 1);
-            z = getVoxelInterpolation(view, i, j, ray) - z1;
+            double z1 = getRealVoxel(view, i, j, ray - 1.0);
+            z = currentVoxel - z1;
         }
         return new Vector(x, y, z);
     }
@@ -216,12 +201,12 @@ public class CTHeadViewer {
      * @param z The non integer z value to get.
      * @return Voxel at non-integer position.
      */
-    public double getVoxelInterpolation(String view, int x, int y, double z) {
+    public double getRealVoxel(String view, int x, int y, double z) {
         int z1 = (int) Math.floor(z);
         int z2 = (int) Math.ceil(z);
         short v1 = getVoxel(view, x, y, z1);
         short v2 = getVoxel(view, x, y, z2);
-        return linearInterpolationColour(v1, v2, z1, z, z2);
+        return linearInterpolationVoxel(v1, v2, z1, z, z2);
     }
 
     /**
@@ -233,7 +218,7 @@ public class CTHeadViewer {
      * @param x2 The integer position after.
      * @return The voxel value at non integer position X.
      */
-    public double linearInterpolationColour(Short v1, Short v2, int x1, double x, int x2) {
+    public double linearInterpolationVoxel(double v1, double v2, double x1, double x, int x2) {
         double dividend = x - x1;
         double divisor = x2 - x1;
         double quotient = dividend / divisor;
@@ -275,23 +260,29 @@ public class CTHeadViewer {
                 boolean hitBone = false;
                 double L = 1;
 
-                for (int ray = 0; ray < (rayLength - 1) && !hitBone; ray++) {
+                for (int ray = 0; ray < rayLength && !hitBone; ray++) {
                     short currentVoxel = getVoxel(view, i, j, ray);
-                    if (currentVoxel > 400 && isGradient) {
-                        Vector gradient;
+                    if (currentVoxel >= 400 && isGradient) {
+                        Vector surfaceNormal;
                         if (isGradientInterpolation) {
                             double actualIntersection;
                             int prevRay = (ray > 0) ? (ray - 1) : ray;
                             short prevVoxel = getVoxel(view, i, j, prevRay);
-                            actualIntersection =
-                                    linearInterpolationPosition(400, prevVoxel, currentVoxel, prevRay, ray);
 
-                            gradient = calculateGradient(i, j, actualIntersection, rayLength, view, w, h);
+                            if (currentVoxel == 400){
+                                surfaceNormal = getSurfaceNormal(i, j, ray, rayLength, view, w, h);
+                                L = getLighting(i, j, ray, surfaceNormal);
+                            } else {
+                                actualIntersection =
+                                        linearInterpolationPosition(400, prevVoxel, currentVoxel, prevRay, ray);
+                                surfaceNormal = getSurfaceNormal(i, j, actualIntersection, rayLength, view, w, h);
+                                L = getLighting(i, j, actualIntersection, surfaceNormal);
+                            }
+
                         } else {
-                            gradient = calculateGradient(i, j, ray, rayLength, view, w, h);
+                            surfaceNormal = getSurfaceNormal(i, j, ray, rayLength, view, w, h);
+                            L = getLighting(i, j, ray, surfaceNormal) ;
                         }
-
-                        L = getLighting(i, j, ray, gradient);
                         hitBone = true;
                     }
 
@@ -304,8 +295,7 @@ public class CTHeadViewer {
                         alphaAccum = alphaAccum * (1 - sigma);
                     }
                 }
-
-                image_writer.setColor(i, j, Color.color(redAccum, greenAccum, blueAccum, 1.0));
+                image_writer.setColor(i, j, Color.color(redAccum, greenAccum, blueAccum, 1));
             }//column
         }//row
     }
@@ -440,83 +430,4 @@ public class CTHeadViewer {
     public void setLightSourceX(int position) {
         this.lightSourceX = position;
     }
-
-
-
-
-//CODE FOR POTENTIALLY ROTATING HEAD 45 DEGREES
-//    public void drawSlice45(WritableImage image, int slice, String view) {
-//        //Get image dimensions, and declare loop variables
-//        int w=(int) image.getWidth(), h=(int) image.getHeight();
-//        PixelWriter image_writer = image.getPixelWriter();
-//
-//        double iCenter = w/2;
-//        double jCenter = h/2;
-//        double kCenter = (iCenter <= jCenter) ? iCenter : jCenter;
-//
-//        double col;
-//        short datum;
-//
-//        double maxX = Double.MIN_VALUE;
-//        double minX = Double.MAX_VALUE;
-//
-//        double maxZ = Double.MIN_VALUE;
-//        double minZ = Double.MAX_VALUE;
-//
-//        for (int j=0; j<h; j++) {
-//            for (int i=0; i<w; i++) {
-//
-//                int oldX = i;
-//                int oldY = j;
-//                int oldZ = slice;
-//
-////                for (int r = 0; r < w; r++){
-////                    if (Math.round(i * Math.cos(45) + (r) * Math.sin(45)) == slice) {
-////                        double newX = i * Math.cos(45) + (r) * Math.sin(45);
-////                        double newz = i * Math.sin(45) + (r) * Math.cos(45);
-////                        int z = (int) Math.round(newz);
-////                        int x = (int) Math.round(newX);
-////
-////                        if (x < w && z < w && x > -1 && z > -1) {
-////                            datum = getView("side", x, j, z);
-////                            col = (((float) datum - (float) ctHead.getMin()) / ((float) (ctHead.getMax() - ctHead.getMin())));
-////                            image_writer.setColor(i, j, Color.color(col, col, col, 1.0));
-////                        }
-////                        //break;
-////                    }
-////                }
-//
-//               double newX1 = i * Math.cos(45) + (slice) * Math.sin(45);
-//               double newz1 = i * Math.sin(45) + (slice) * Math.cos(45);
-//
-//                System.out.println(slice + " " + newz1);
-//
-//                int z = (int) Math.round(newz1);
-//                int x = (int) Math.round(newX1);
-//
-//                if (x > maxX){
-//                    maxX = x;
-//                }
-//                if (z > maxZ){
-//                    maxZ = z;
-//                }
-//                if (x < minX){
-//                    minX = x;
-//                }
-//                if (z < minZ){
-//                    minZ = z;
-//                }
-//
-//                if (x < w && z < w && x > -1 && z > -1) {
-//                    datum = getView("side", x, j, z);
-//                    col = (((float) datum - (float) ctHead.getMin()) / ((float) (ctHead.getMax() - ctHead.getMin())));
-//                    image_writer.setColor(i, j, Color.color(col, col, col, 1.0));
-//                }
-//            } // column loop
-//        } // row loop
-//
-//        System.out.println(minX + " " + maxX);
-//
-//        System.out.println(minZ + " " + maxZ);
-//    }
 }
