@@ -194,11 +194,11 @@ public class CTHeadViewer {
             y = getVoxelInterpolation(view, i, j, ray) - y1;
         }
 
-        if (ray > 0 && ray < (rayLength - 1)) {
+        if (ray >= 1 && ray < (rayLength - 1)) {
             double z1 = getVoxelInterpolation(view, i, j, ray - 1);
             double z2 = getVoxelInterpolation(view, i, j, ray + 1);
             z = z2 - z1;
-        } else if (ray <= 0) {
+        } else if (ray <= 1) {
             double z2 = getVoxelInterpolation(view, i, j, ray + 1);
             z = z2 - getVoxelInterpolation(view, i, j, ray);
         } else {
@@ -285,6 +285,7 @@ public class CTHeadViewer {
                             short prevVoxel = getVoxel(view, i, j, prevRay);
                             actualIntersection =
                                     linearInterpolationPosition(400, prevVoxel, currentVoxel, prevRay, ray);
+
                             gradient = calculateGradient(i, j, actualIntersection, rayLength, view, w, h);
                         } else {
                             gradient = calculateGradient(i, j, ray, rayLength, view, w, h);
