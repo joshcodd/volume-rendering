@@ -14,8 +14,7 @@ public class CTHeadViewer {
     private final int FRONT_HEIGHT;
     private final int SIDE_WIDTH;
     private final int SIDE_HEIGHT;
-    private final double LIGHT_SOURCE_Y = 20;
-    private final double LIGHT_SOURCE_Z = 256;
+    private final double BONE_VALUE = 400;
     private final Volume ctHead;
 
     private double opacity = 0.12;
@@ -40,38 +39,38 @@ public class CTHeadViewer {
     /**
      *Gets the correct voxel for the direction/view you want to see.
      * @param view The view/direction to display e.g top, side or front
-     * @param i The x value to get.
-     * @param j The y value to get.
-     * @param k The z value to get.
+     * @param x The x value to get.
+     * @param y The y value to get.
+     * @param z The z value to get.
      * @return The correct voxel.
      */
-    public short getVoxel(String view, int i, int j, int k) {
+    public short getVoxel(String view, int x, int y, int z) {
         if (view.equals("top")) {
-            return ctHead.getVoxel(k, j, i);
+            return ctHead.getVoxel(z, y, x);
         } else if (view.equals("side")) {
-            return ctHead.getVoxel(j, i, k);
+            return ctHead.getVoxel(y, x, z);
         } else {
-            return ctHead.getVoxel(j, k, i);
+            return ctHead.getVoxel(y, z, x);
         }
     }
 
     /**
      * Draws the specified slice of the CAT scan to screen.
      * @param image The image to write to.
-     * @param slice The slice to display.
      * @param view The direction of CAT scan to view. Options are front, side or top.
+     * @param slice The slice to display.
      */
-    public void drawSlice(WritableImage image, int slice, String view) {
-        int w = (int) image.getWidth(), h = (int) image.getHeight();
+    public void drawSlice(WritableImage image, String view, int slice) {
+        int width = (int) image.getWidth(), height = (int) image.getHeight();
         PixelWriter image_writer = image.getPixelWriter();
-        double col;
-        short datum;
+        double colour;
+        short voxel;
 
-        for (int j = 0; j < h; j++) {
-            for (int i = 0; i < w; i++) {
-                datum = getVoxel(view, i, j, slice);
-                col = (((float) datum - (float) ctHead.getMin()) / ((float) (ctHead.getMax() - ctHead.getMin())));
-                image_writer.setColor(i, j, Color.color(col, col, col, 1.0));
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                voxel = getVoxel(view, i, j, slice);
+                colour = (((float) voxel - (float) ctHead.getMin()) / ((float) (ctHead.getMax() - ctHead.getMin())));
+                image_writer.setColor(i, j, Color.color(colour, colour, colour, 1.0));
             } // column loop
         } // row loop
     }
@@ -82,12 +81,12 @@ public class CTHeadViewer {
      * @param view The direction to view the scan/dataset from. i.e front, side or top.
      */
     public void volumeRender(WritableImage image, String view) {
-        int w = (int) image.getWidth(), h = (int) image.getHeight();
         PixelWriter image_writer = image.getPixelWriter();
-        int rayLength = (view.equals("top")) ? ctHead.getCT_z_axis() : ctHead.getCT_x_axis();
+        int width = (int) image.getWidth(), height = (int) image.getHeight();
+        int depth = (view.equals("top")) ? ctHead.getCT_z_axis() : ctHead.getCT_x_axis();
 
-        for (int j = 0; j < h; j++) {
-            for (int i = 0; i < w; i++) {
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
                 double alphaAccum = 1;
                 double redAccum = 0;
                 double greenAccum = 0;
@@ -95,20 +94,22 @@ public class CTHeadViewer {
                 boolean hitBone = false;
                 double L = 1;
 
-                for (int ray = 0; ray < rayLength && !hitBone; ray++) {
-                    short currentVoxel = getVoxel(view, i, j, ray);
-                    if (currentVoxel >= 400 && isGradient) {
-                        Vector surfaceNormal;
-                        L = getDiffuseLighting(i,j,ray,view,currentVoxel,rayLength,w,h);
+                for (int k = 0; k < depth && !hitBone; k++) {
+                    short currentVoxel = getVoxel(view, i, j, k);
+                    if (currentVoxel >= BONE_VALUE && isGradient) {
+                        L = getDiffuseLighting(view, i, j, k, currentVoxel, height, width, depth);
                         hitBone = true;
                     }
 
                     if (!isGradient || hitBone) {
+                        final int RED = 0;
+                        final int GREEN = 1;
+                        final int BLUE = 2;
                         double[] colour = transferFunction(currentVoxel);
                         double sigma = colour[3];
-                        redAccum = Math.min(redAccum + (alphaAccum * sigma * L * colour[0]), 1);
-                        greenAccum = Math.min(greenAccum + (alphaAccum * sigma * L * colour[1]), 1);
-                        blueAccum = Math.min(blueAccum + (alphaAccum * sigma * L * colour[2]), 1);
+                        redAccum = Math.min(redAccum + (alphaAccum * sigma * L * colour[RED]), 1);
+                        greenAccum = Math.min(greenAccum + (alphaAccum * sigma * L * colour[GREEN]), 1);
+                        blueAccum = Math.min(blueAccum + (alphaAccum * sigma * L * colour[BLUE]), 1);
                         alphaAccum = alphaAccum * (1 - sigma);
                     }
                 }
@@ -118,26 +119,31 @@ public class CTHeadViewer {
     }
 
     /**
-     * Calculates the lighting/shading of a pixel.
-     * @param i The y axis location of the pixel.
-     * @param j The x axis location of the pixel.
-     * @param ray The z or ray depth location of the pixel.
-     * @param surfaceNormal The surface normal of the data.
-     * @return The lighting value for said pixel.
+     * Calculates the diffuse lighting/shading of a pixel.
+     * @param x The x axis location of the pixel.
+     * @param y The y axis location of the pixel.
+     * @param z The z or ray depth location of the pixel.
+     * @param currentVoxel The voxel at the current position.
+     * @param height The height of the image.
+     * @param width The width of the image.
+     * @param depth Maximum depth of the ray.
+     * @return The lighting value for the specified pixel.
      */
-    public double getDiffuseLighting(int i, int j, int ray, String view, int currentVoxel, int rayLength, int w, int h) {
-        Vector surfaceNormal = getSurfaceNormal(i, j, ray, rayLength, view, w, h);
-        Vector intersection = new Vector(i,j,ray);
+    public double getDiffuseLighting(String view, int x, int y, int z, int currentVoxel, int height, int width, int depth) {
+        Vector surfaceNormal = getSurfaceNormal(view, x, y, z, height, width, depth);
+        Vector intersection = new Vector(x, y, z);
 
-        if (isGradientInterpolation && currentVoxel != 400) {
-            int prevRay = (ray > 0) ? (ray - 1) : ray;
-            short prevVoxel = getVoxel(view, i, j, prevRay);
-            double actualIntersection =
-                    linearInterpolationPosition(400, prevVoxel, currentVoxel, prevRay, ray);
-            surfaceNormal = getSurfaceNormal(i, j, actualIntersection, rayLength, view, w, h);
-            intersection.setC(actualIntersection);
+        if (isGradientInterpolation && currentVoxel != BONE_VALUE) {
+            int prevRay = (z > 0) ? (z - 1) : z;
+            short prevVoxel = getVoxel(view, x, y, prevRay);
+            double exactZ =
+                    linearInterpolationPosition(BONE_VALUE, prevVoxel, currentVoxel, prevRay, z);
+            surfaceNormal = getSurfaceNormal(view, x, y, exactZ, height, width, depth);
+            intersection.setC(exactZ);
         }
 
+        final double LIGHT_SOURCE_Y = 20;
+        final double LIGHT_SOURCE_Z = 256;
         Vector lightSourcePosition = new Vector(lightSourceX, LIGHT_SOURCE_Y, LIGHT_SOURCE_Z);
         Vector lightDirection = lightSourcePosition.subtract(intersection);
         lightDirection.normalize();
@@ -145,72 +151,111 @@ public class CTHeadViewer {
         return Math.max(0, surfaceNormal.dotProduct(lightDirection));
     }
 
-    public double getGradient(double x,int i1, int j1, int k1, int i2, int j2, int k2, String view, int min, int max, int i) {
+
+    /**
+     * Calculates and returns the an estimate of the gradient/slope at the specified position, in which the z
+     * axis is an integer. This calculation uses both central, forward and backward differance.
+     * @param view The direction to view the scan/dataset from. i.e front, side or top.
+     * @param current The voxel at the position to find the slope for.
+     * @param x1 The x axis position of a voxel before the current.
+     * @param y1 The y axis position of a voxel before the current.
+     * @param z1 The integer z axis position of a voxel before the current.
+     * @param x2 The x axis position of a voxel after the current.
+     * @param y2 The y axis position of a voxel after the current.
+     * @param z2 The integer z axis position of a voxel after the current.
+     * @param min The minimum value a altered axis could be. (Normally 0).
+     * @param max The maximum value a altered axis could be. (Normally axis length - 1)
+     * @param i The axis you are altering.
+     * @return The gradient calculated for the specified position.
+     */
+    public double getGradient(String view, double current, int x1, int y1, int z1, int x2,
+                              int y2, int z2, int min, int max, int i) {
         if (i > min && i < (max - 1)) {
-            double x1 = getVoxel(view, i1, j1, k1);
-            double x2 = getVoxel(view, i2, j2, k2);
-            return x2 - x1;
+            double prev = getVoxel(view, x1, y1, z1);
+            double next = getVoxel(view, x2, y2, z2);
+            return next - prev;
         } else if (i <= min) {
-            double x2 = getVoxel(view, i2, j2, k2);
-            return x2 - x;
+            double next = getVoxel(view, x2, y2, z2);
+            return next - current;
         } else {
-            double x1 = getVoxel(view, i1, j1, k1);
-            return x - x1;
+            double prev = getVoxel(view, x1, y1, z1);
+            return current - prev;
         }
     }
 
-    public double getGradient(double x,int i1, int j1, double k1, int i2, int j2, double k2, String view, int min, int max, double i) {
+    /**
+     * Calculates and returns the an estimate of the gradient/slope at the specified position, in which the z
+     * axis is a non integer position. This calculation uses both central, forward and backward differance.
+     * @param view The direction to view the scan/dataset from. i.e front, side or top.
+     * @param current The voxel at the position to find the slope for.
+     * @param x1 The x axis position of a voxel before the current.
+     * @param y1 The y axis position of a voxel before the current.
+     * @param z1 The non-integer z axis position of a voxel before the current.
+     * @param x2 The x axis position of a voxel after the current.
+     * @param y2 The y axis position of a voxel after the current.
+     * @param z2 The non-integer z axis position of a voxel after the current.
+     * @param min The minimum value a altered axis could be. (Normally 0).
+     * @param max The maximum value a altered axis could be. (Normally axis length - 1)
+     * @param i The axis you are altering.
+     * @return The gradient calculated for the specified position.
+     */
+    public double getGradient(String view, double current, int x1, int y1, double z1, int x2,
+                              int y2, double z2, int min, int max, double i) {
         if (i > min && i < (max - 1)) {
-            double x1 = getRealVoxel(view, i1, j1, k1);
-            double x2 = getRealVoxel(view, i2, j2, k2);
-            return x2 - x1;
+            double prev = getRealVoxel(view, x1, y1, z1);
+            double next = getRealVoxel(view, x2, y2, z2);
+            return next - prev;
         } else if (i <= min) {
-            double x2 = getRealVoxel(view, i2, j2, k2);
-            return x2 - x;
+            double next = getRealVoxel(view, x2, y2, z2);
+            return next - current;
         } else {
-            double x1 = getRealVoxel(view, i1, j1, k1);
-            return x - x1;
+            double prev = getRealVoxel(view, x1, y1, z1);
+            return current - prev;
         }
     }
 
     /**
-     * Calculates the surface normal for the current voxel at integer positions.
-     * @param i The x location of voxel.
-     * @param j The y location of voxel.
-     * @param ray The z/ray location of voxel.
-     * @param rayLength Maximum length of the ray.
+     * Calculates the surface normal for the current voxel at all integer positions.
      * @param view The scan direction. i.e top, front or side
+     * @param x The x location of voxel.
+     * @param y The y location of voxel.
+     * @param z The z/ray location of voxel.
+     * @param height The height of the image.
+     * @param width The width of the image.
+     * @param depth Maximum depth of the ray.
      * @return The surface normal of the specified voxel
      */
-    public Vector getSurfaceNormal(int i, int j, int ray, int rayLength, String view, int w, int h) {
-        double x, y, z;
-        short currentVoxel = getVoxel(view, i, j, ray);
-        x = getGradient(currentVoxel,i-1,j,ray,i+1,j,ray,view,0,(w-1),i);
-        y = getGradient(currentVoxel,i,j-1,ray,i,j+1,ray,view,0,h-1,j);
-        z = getGradient(currentVoxel,i,j,ray-1,i,j,ray+1,view,0,rayLength-1,ray);
-        return new Vector(x, y, z);
+    public Vector getSurfaceNormal(String view, int x, int y, int z, int height, int width, int depth) {
+        double xGradient, yGradient, zGradient;
+        short currentVoxel = getVoxel(view, x, y, z);
+        xGradient = getGradient(view, currentVoxel, x-1, y, z, x+1, y, z,0,(width-1),x);
+        yGradient = getGradient(view, currentVoxel, x, y-1, z, x, y+1, z,0,height-1,y);
+        zGradient = getGradient(view, currentVoxel, x, y, z-1, x, y, z+1,0,depth-1, z);
+        return new Vector(xGradient, yGradient, zGradient);
     }
 
     /**
-     * Calculates the surface normal for the current voxel of a non integer position.
-     * @param i The x location of voxel.
-     * @param j The y location of voxel.
-     * @param ray The exact z/ray location of voxel.
-     * @param rayLength Maximum length of the ray.
+     * Calculates the surface normal for the current voxel of a non integer position z.
      * @param view The scan direction. i.e top, front or side
+     * @param x The x location of voxel.
+     * @param y The y location of voxel.
+     * @param z The exact z/ray location of voxel.
+     * @param height The height of the image.
+     * @param width The width of the image.
+     * @param depth Maximum depth of the ray.
      * @return The surface normal of the specified voxel
      */
-    public Vector getSurfaceNormal(int i, int j, double ray, int rayLength, String view, int w, int h) {
-        double x, y, z;
-        double currentVoxel = getRealVoxel(view, i, j, ray);
-        x = getGradient(currentVoxel,i-1,j,ray,i+1,j,ray,view,0,(w-1),i);
-        y = getGradient(currentVoxel,i,j-1,ray,i,j+1,ray,view,0,h-1,j);
-        z = getGradient(currentVoxel,i,j,ray-1,i,j,ray+1,view,1,rayLength-2,ray);
-        return new Vector(x, y, z);
+    public Vector getSurfaceNormal(String view, int x, int y, double z, int height, int width, int depth) {
+        double xGradient, yGradient, zGradient;
+        double currentVoxel = getRealVoxel(view, x, y, z);
+        xGradient = getGradient(view, currentVoxel,x-1, y, z, x+1, y, z, 0, width-1, x);
+        yGradient = getGradient(view, currentVoxel, x, y-1, z, x,y+1, z,0,height-1, y);
+        zGradient = getGradient(view, currentVoxel, x, y, z-1, x, y,z+1,1,depth-2, z);
+        return new Vector(xGradient, yGradient, zGradient);
     }
 
     /**
-     * Gets the voxel at a non integer position.
+     * Gets the voxel at a non integer position z.
      * @param view The direction viewing the ct image from.
      * @param x The x value to get.
      * @param y The y value to get.
@@ -226,7 +271,7 @@ public class CTHeadViewer {
     }
 
     /**
-     * Calculates the voxel at a non-integer position.
+     * Calculates the voxel at a non-integer position along a single axis.
      * @param v1 The voxel at the previous integer position.
      * @param v2 The voxel at the following integer position.
      * @param x1 The integer position before.
