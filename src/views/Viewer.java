@@ -28,7 +28,7 @@ public class Viewer {
                     .getResource("views/viewer.fxml"))
                     .openStream());
 
-            Scene scene = new Scene(root, ctHead.getTop_width() + ctHead.getSide_width() + 330, 600);
+            Scene scene = new Scene(root, ctHead.getTop_width() + ctHead.getSide_width() + 330, 620);
             controller = loader.getController();
             controller.setCTHeadViewer(ctHead);
             scene.getStylesheets().add("styles.css");

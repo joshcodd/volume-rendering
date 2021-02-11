@@ -76,6 +76,31 @@ public class CTHeadViewer {
     }
 
     /**
+     * Performs maximum intensity projection on the specified image/scan.
+     * @param image The image to write to.
+     * @param view The direction to view the scan/dataset from. i.e front, side or top.
+     */
+    public void maximumIntensityProjection(WritableImage image, String view) {
+        PixelWriter image_writer = image.getPixelWriter();
+        int width = (int) image.getWidth(), height = (int) image.getHeight();
+        int depth = (view.equals("top")) ? ctHead.getCT_z_axis() : ctHead.getCT_x_axis();
+
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                short maximum = ctHead.getMin();
+                for (int k = 0; k < depth; k++) {
+                    short currentVoxel = getVoxel(view, i, j, k);
+                    if (currentVoxel > maximum){
+                        maximum = currentVoxel;
+                    }
+                }
+                float colour = (((float) maximum - (float) ctHead.getMin()) / ((float) (ctHead.getMax() - ctHead.getMin())));
+                image_writer.setColor(i, j, Color.color(colour, colour, colour, 1.0));
+            }//column
+        }//row
+    }
+
+    /**
      * Performs volume rendering on the specified image/scan.
      * @param image The image to write to.
      * @param view The direction to view the scan/dataset from. i.e front, side or top.
@@ -114,31 +139,6 @@ public class CTHeadViewer {
                     }
                 }
                 image_writer.setColor(i, j, Color.color(redAccum, greenAccum, blueAccum, 1));
-            }//column
-        }//row
-    }
-
-    /**
-     * Performs volume rendering on the specified image/scan.
-     * @param image The image to write to.
-     * @param view The direction to view the scan/dataset from. i.e front, side or top.
-     */
-    public void maximumIntensityProjection(WritableImage image, String view) {
-        PixelWriter image_writer = image.getPixelWriter();
-        int width = (int) image.getWidth(), height = (int) image.getHeight();
-        int depth = (view.equals("top")) ? ctHead.getCT_z_axis() : ctHead.getCT_x_axis();
-
-        for (int j = 0; j < height; j++) {
-            for (int i = 0; i < width; i++) {
-                short maximum = ctHead.getMin();
-                for (int k = 0; k < depth; k++) {
-                    short currentVoxel = getVoxel(view, i, j, k);
-                    if (currentVoxel > maximum){
-                        maximum = currentVoxel;
-                    }
-                }
-                float colour = (((float) maximum - (float) ctHead.getMin()) / ((float) (ctHead.getMax() - ctHead.getMin())));
-                image_writer.setColor(i, j, Color.color(colour, colour, colour, 1.0));
             }//column
         }//row
     }

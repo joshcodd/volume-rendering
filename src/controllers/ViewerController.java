@@ -31,13 +31,16 @@ public class ViewerController {
     public StackPane menuPane;
     public Button openFileButton;
     public Slider lightSource;
-
     public Button gradientButton;
     public Button gradientInterpolationButton;
     public Button mipButton;
+    public VBox volRendMenu;
+    public VBox lightMenu;
 
     private Stage stage;
     private CTHeadViewer ctHead;
+    private boolean isVolumeRendered = false;
+    private boolean isMIP = false;
 
     WritableImage top_image;
     WritableImage front_image;
@@ -65,6 +68,8 @@ public class ViewerController {
         thirdViewSlider.setMax(ctHead.getCtHead().getCT_y_axis() - 1);
 
         midSlideButton.setOnAction(event -> {
+            reset();
+            isMIP = false;
             firstViewSlider.valueProperty().setValue(75);
             secondViewSlider.valueProperty().setValue(75);
             thirdViewSlider.valueProperty().setValue(75);
@@ -75,58 +80,97 @@ public class ViewerController {
         });
 
         volumeRenderButton.setOnAction(event -> {
-            ctHead.volumeRender(side_image, "side");
-            ctHead.volumeRender(top_image, "top");
-            ctHead.volumeRender(front_image, "front");
+            if (!isVolumeRendered) {
+                isMIP = false;
+                volumeRender();
+                volRendMenu.setVisible(true);
+                isVolumeRendered = true;
+            } else {
+                midSlideButton.fire();
+            }
         });
 
         firstViewSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             ctHead.drawSlice(top_image, "top", newValue.intValue());
             sliderValueStyle(firstViewSlider);
+            reset();
+            isMIP = false;
         });
 
         secondViewSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             ctHead.drawSlice(front_image,"front", newValue.intValue());
             sliderValueStyle(secondViewSlider);
+            reset();
+            isMIP = false;
         });
 
         thirdViewSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             ctHead.drawSlice(side_image, "side", newValue.intValue());
             sliderValueStyle(thirdViewSlider);
+            reset();
+            isMIP = false;
         });
 
         opacitySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             ctHead.setOpacity((double) (newValue)/100.0);
-            volumeRenderButton.fire();
+            volumeRender();
             sliderValueStyle(opacitySlider);
         });
 
         lightSource.valueProperty().addListener((observable, oldValue, newValue) -> {
             ctHead.setLightSourceX(newValue.intValue());
-            volumeRenderButton.fire();
+            volumeRender();
             sliderValueStyle(lightSource);
         });
 
         gradientButton.setOnAction(e -> {
             ctHead.setGradientShading(!ctHead.getGradientShading());
-            volumeRenderButton.fire();
+            lightMenu.setVisible(ctHead.getGradientShading());
+            volumeRender();
         });
 
         gradientInterpolationButton.setOnAction(e -> {
             ctHead.setGradientInterpolation(!ctHead.getGradientInterpolation());
-            ctHead.setGradientShading(true);
-            volumeRenderButton.fire();
             String value = ctHead.getGradientInterpolation() ? "On" : "Off";
             gradientInterpolationButton.setText("Interpolation: " + value);
+            volumeRender();
         });
 
         mipButton.setOnAction(e -> {
-            ctHead.maximumIntensityProjection(top_image, "top");
-            ctHead.maximumIntensityProjection(side_image, "side");
-            ctHead.maximumIntensityProjection(front_image, "front");
+            if (!isMIP) {
+                ctHead.maximumIntensityProjection(top_image, "top");
+                ctHead.maximumIntensityProjection(side_image, "side");
+                ctHead.maximumIntensityProjection(front_image, "front");
+                reset();
+                isMIP = true;
+            } else {
+                isMIP = false;
+                midSlideButton.fire();
+            }
         });
 
         openFileButton.setOnAction(e -> menu.getRoot().setVisible(!menu.getRoot().isVisible()));
+    }
+
+    /**
+     * Resets the volume rendering menu.
+     */
+    public void reset(){
+        volRendMenu.setVisible(false);
+        isVolumeRendered = false;
+        ctHead.setGradientShading(false);
+        ctHead.setGradientInterpolation(false);
+        gradientInterpolationButton.setText("Interpolation: Off");
+        lightMenu.setVisible(false);
+    }
+
+    /**
+     * Carried out volume rendering on all views.
+     */
+    public void volumeRender(){
+        ctHead.volumeRender(side_image, "side");
+        ctHead.volumeRender(top_image, "top");
+        ctHead.volumeRender(front_image, "front");
     }
 
     /**
