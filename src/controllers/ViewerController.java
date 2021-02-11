@@ -34,6 +34,7 @@ public class ViewerController {
 
     public Button gradientButton;
     public Button gradientInterpolationButton;
+    public Button mipButton;
 
     private Stage stage;
     private CTHeadViewer ctHead;
@@ -106,17 +107,23 @@ public class ViewerController {
             sliderValueStyle(lightSource);
         });
 
-        gradientButton.setOnAction( e -> {
+        gradientButton.setOnAction(e -> {
             ctHead.setGradientShading(!ctHead.getGradientShading());
             volumeRenderButton.fire();
         });
 
-        gradientInterpolationButton.setOnAction( e -> {
+        gradientInterpolationButton.setOnAction(e -> {
             ctHead.setGradientInterpolation(!ctHead.getGradientInterpolation());
             ctHead.setGradientShading(true);
             volumeRenderButton.fire();
             String value = ctHead.getGradientInterpolation() ? "On" : "Off";
             gradientInterpolationButton.setText("Interpolation: " + value);
+        });
+
+        mipButton.setOnAction(e -> {
+            ctHead.maximumIntensityProjection(top_image, "top");
+            ctHead.maximumIntensityProjection(side_image, "side");
+            ctHead.maximumIntensityProjection(front_image, "front");
         });
 
         openFileButton.setOnAction(e -> menu.getRoot().setVisible(!menu.getRoot().isVisible()));

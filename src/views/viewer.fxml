@@ -56,14 +56,25 @@
                <Label text="Effects" textFill="#aeaeae" />
             </HBox>
             <VBox>
-               <VBox>
+               <VBox VBox.vgrow="ALWAYS">
                   <padding>
                      <Insets bottom="20.0" left="10.0" right="10.0" top="10.0" />
                   </padding>
-                  <Button fx:id="volumeRenderButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0" style="-fx-padding: 10;" text="Volume Render" textFill="#aeaeae" VBox.vgrow="NEVER">
+                  <Button fx:id="mipButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0" style="-fx-padding: 10;" text="Maximum Intensity Projection" textFill="#aeaeae" VBox.vgrow="ALWAYS">
+                     <VBox.margin>
+                        <Insets bottom="10.0" />
+                     </VBox.margin>
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="volumeRenderButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0" style="-fx-padding: 10;" text="Volume Render" textFill="#aeaeae" VBox.vgrow="ALWAYS">
                      <VBox.margin>
                         <Insets />
                      </VBox.margin>
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font>
                   </Button>
                   <Label text="Opacity" textFill="#aeaeae">
                      <VBox.margin>
@@ -74,8 +85,14 @@
                      <VBox.margin>
                         <Insets bottom="10.0" />
                      </VBox.margin></Slider>
-                  <Button fx:id="gradientButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0" style="-fx-padding: 10;" text="Gradient Shading" textFill="#aeaeae" />
-                  <Button fx:id="gradientInterpolationButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0" style="-fx-padding: 10;" text="Interpolation: Off" textFill="#aeaeae" />
+                  <Button fx:id="gradientButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0" style="-fx-padding: 10;" text="Gradient Shading" textFill="#aeaeae" VBox.vgrow="ALWAYS">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font></Button>
+                  <Button fx:id="gradientInterpolationButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0" style="-fx-padding: 10;" text="Interpolation: Off" textFill="#aeaeae" VBox.vgrow="ALWAYS">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font></Button>
                   <Label text="Light source" textFill="#aeaeae">
                      <VBox.margin>
                         <Insets bottom="2.0" top="10.0" />
