@@ -32,31 +32,27 @@ public class Volume {
      */
     public void ReadData(String filename, Boolean isCorrectEndian) throws IOException {
         File file = new File(filename);
-        //Read the data quickly via a buffer.
         DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
-        int i, j, k; //loop through the 3D data set
-        min=Short.MAX_VALUE; max=Short.MIN_VALUE; //set to extreme values
+        min=Short.MAX_VALUE; max=Short.MIN_VALUE;
         short read;
-        int b1, b2; //data is wrong Endian (check wikipedia) for Java so we need to swap the bytes around
-
-        volume = new short[CT_z_axis][CT_y_axis][CT_x_axis]; //allocate the memory - note this is fixed for this data set
-        //loop through the data reading it in
-        for (k=0; k<CT_z_axis; k++) {
-            for (j=0; j<CT_y_axis; j++) {
-                for (i=0; i<CT_x_axis; i++) {
-                    //because the Endian is wrong, it needs to be read byte at a time and swapped
-                    b1 = ((int) in.readByte()) & 0xff; //the 0xff is because Java does not have unsigned types
-                    b2 = ((int) in.readByte()) & 0xff; //the 0xff is because Java does not have unsigned types
-
+        int b1, b2;
+        volume = new short[CT_z_axis][CT_y_axis][CT_x_axis];
+        
+        for (int k = 0; k < CT_z_axis; k++) {
+            for (int j = 0; j < CT_y_axis; j++) {
+                for (int i=0; i < CT_x_axis; i++) {
+                    b1 = ((int) in.readByte()) & 0xff;
+                    b2 = ((int) in.readByte()) & 0xff;
+                    //swap bytes
                     if (!isCorrectEndian) {
-                        read = (short) ((b2 << 8) | b1); //and swizzle the bytes around
+                        read = (short) ((b2 << 8) | b1);
                     } else {
-                        read = (short) ((b1 << 8) | b2); //and swizzle the bytes around
+                        read = (short) ((b1 << 8) | b2);
                     }
 
-                    if (read < min) min = read; //update the minimum
-                    if (read > max) max = read; //update the maximum
-                    volume[k][j][i]=read; //put the short into memory (in C++ you can replace all this code with one fread)
+                    if (read < min) min = read;
+                    if (read > max) max = read;
+                    volume[k][j][i]=read;
                 }
             }
         }
