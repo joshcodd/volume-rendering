@@ -17,6 +17,12 @@ import static javafx.collections.FXCollections.observableArrayList;
  */
 public class MenuController {
     private static final String PATH_TO_SCANS = "src/data";
+    private String filename;
+    private int xAxis = 0;
+    private int yAxis = 0;
+    private int zAxis = 0;
+    private boolean isCorrectEndian = false;
+    private Stage stage;
 
     @FXML
     public Button submitButton;
@@ -27,13 +33,6 @@ public class MenuController {
     public ChoiceBox<String> filenameChoiceBox;
     public Button defaultButton;
     public VBox menuPane;
-
-    private String filename;
-    private int xAxis = 0;
-    private int yAxis = 0;
-    private int zAxis = 0;
-    private boolean isCorrectEndian = false;
-    private Stage stage;
 
     /**
      * Initializes the user interface elements.
