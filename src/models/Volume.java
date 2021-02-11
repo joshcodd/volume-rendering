@@ -37,7 +37,7 @@ public class Volume {
         short read;
         int b1, b2;
         volume = new short[CT_z_axis][CT_y_axis][CT_x_axis];
-        
+
         for (int k = 0; k < CT_z_axis; k++) {
             for (int j = 0; j < CT_y_axis; j++) {
                 for (int i=0; i < CT_x_axis; i++) {
