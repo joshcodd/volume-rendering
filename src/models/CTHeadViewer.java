@@ -158,8 +158,8 @@ public class CTHeadViewer {
         Vector surfaceNormal = getSurfaceNormal(view, x, y, z, height, width, depth);
         Vector intersection = new Vector(x, y, z);
 
-        if (isGradientInterpolation && currentVoxel != BONE_VALUE) {
-            int prevRay = (z > 0) ? (z - 1) : z;
+        if (isGradientInterpolation && currentVoxel != BONE_VALUE && z > 0) {
+            int prevRay = z - 1;
             short prevVoxel = getVoxel(view, x, y, prevRay);
             double exactZ =
                     linearInterpolationPosition(BONE_VALUE, prevVoxel, currentVoxel, prevRay, z);
