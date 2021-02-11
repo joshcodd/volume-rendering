@@ -80,17 +80,17 @@ public class ViewerController {
         });
 
         firstViewSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            ctHead.drawSlice(top_image, newValue.intValue(), "top");
+            ctHead.drawSlice(top_image, "top", newValue.intValue());
             sliderValueStyle(firstViewSlider);
         });
 
         secondViewSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            ctHead.drawSlice(front_image, newValue.intValue(), "front");
+            ctHead.drawSlice(front_image,"front", newValue.intValue());
             sliderValueStyle(secondViewSlider);
         });
 
         thirdViewSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            ctHead.drawSlice(side_image, newValue.intValue(), "side");
+            ctHead.drawSlice(side_image, "side", newValue.intValue());
             sliderValueStyle(thirdViewSlider);
         });
 
