@@ -64,19 +64,38 @@
     -fx-pref-width: 205;
 }
 
-
 .scroll-pane .scroll-bar {
     -fx-background-color: #282828;
 }
 
 .scroll-pane .scroll-bar .thumb {
     -fx-background-color: #1D1D1D;
+    -fx-background-radius: 100;
 }
 
-.scroll-pane > .scroll-bar > .increment-button > .increment-arrow {
-    -fx-background-color: #aeaeae;
+.scroll-pane .scroll-bar .increment-button {
+    -fx-opacity: 0;
 }
 
-.scroll-pane > .scroll-bar > .decrement-button > .decrement-arrow {
-    -fx-background-color: #aeaeae;
+.scroll-pane .scroll-bar .decrement-button  {
+    -fx-opacity: 0;
+}
+
+.scroll-pane .corner  {
+    -fx-opacity: 0;
+}
+
+.scroll-bar:vertical {
+    -fx-pref-width: 13;
+}
+
+.scroll-bar:horizontal {
+    -fx-pref-height: 13;
+}
+
+.scroll-bar .decrement-arrow {
+    -fx-padding:0;
+}
+.scroll-bar .increment-arrow {
+    -fx-padding:0;
 }
