@@ -1,6 +1,7 @@
 package controllers;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
@@ -36,11 +37,13 @@ public class ViewerController {
     public Button mipButton;
     public VBox volRendMenu;
     public VBox lightMenu;
+    public ChoiceBox<String> tfChoice;
 
     private Stage stage;
     private CTHeadViewer ctHead;
     private boolean isVolumeRendered = false;
     private boolean isMIP = false;
+    private String transferFunction = "TF1";
 
     WritableImage top_image;
     WritableImage front_image;
@@ -67,6 +70,16 @@ public class ViewerController {
         secondViewSlider.setMax(ctHead.getCtHead().getCT_y_axis() - 1);
         thirdViewSlider.setMax(ctHead.getCtHead().getCT_y_axis() - 1);
 
+        tfChoice.getItems().add("TF1");
+        tfChoice.getItems().add("TF2");
+        tfChoice.setValue("TF1");
+
+        tfChoice.setOnAction(event ->  {
+            transferFunction = tfChoice.getValue();
+            volumeRender();}
+        );
+
+
         midSlideButton.setOnAction(event -> {
             reset();
             isMIP = false;
@@ -84,6 +97,7 @@ public class ViewerController {
                 isMIP = false;
                 volumeRender();
                 volRendMenu.setVisible(true);
+                volRendMenu.setManaged(true);
                 isVolumeRendered = true;
             } else {
                 midSlideButton.fire();
@@ -126,6 +140,7 @@ public class ViewerController {
         gradientButton.setOnAction(e -> {
             ctHead.setGradientShading(!ctHead.getGradientShading());
             lightMenu.setVisible(ctHead.getGradientShading());
+            lightMenu.setManaged(true);
             volumeRender();
         });
 
@@ -157,20 +172,22 @@ public class ViewerController {
      */
     public void reset(){
         volRendMenu.setVisible(false);
+        volRendMenu.setManaged(false);
         isVolumeRendered = false;
         ctHead.setGradientShading(false);
         ctHead.setGradientInterpolation(false);
         gradientInterpolationButton.setText("Interpolation: Off");
         lightMenu.setVisible(false);
+        lightMenu.setManaged(false);
     }
 
     /**
      * Carried out volume rendering on all views.
      */
     public void volumeRender(){
-        ctHead.volumeRender(side_image, "side");
-        ctHead.volumeRender(top_image, "top");
-        ctHead.volumeRender(front_image, "front");
+        ctHead.volumeRender(side_image, "side", transferFunction);
+        ctHead.volumeRender(top_image, "top", transferFunction);
+        ctHead.volumeRender(front_image, "front", transferFunction);
     }
 
     /**
