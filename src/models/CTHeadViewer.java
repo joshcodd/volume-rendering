@@ -105,7 +105,7 @@ public class CTHeadViewer {
      * @param image The image to write to.
      * @param view The direction to view the scan/dataset from. i.e front, side or top.
      */
-    public void volumeRender(WritableImage image, String view) {
+    public void volumeRender(WritableImage image, String view, String transferFunction) {
         PixelWriter image_writer = image.getPixelWriter();
         int width = (int) image.getWidth(), height = (int) image.getHeight();
         int depth = (view.equals("top")) ? ctHead.getCT_z_axis() : ctHead.getCT_x_axis();
@@ -130,7 +130,7 @@ public class CTHeadViewer {
                         final int RED = 0;
                         final int GREEN = 1;
                         final int BLUE = 2;
-                        double[] colour = transferFunction(currentVoxel);
+                        double[] colour = getTransferFunction(currentVoxel, transferFunction);
                         double sigma = colour[3];
                         redAccum = Math.min(Math.max(redAccum + (alphaAccum * sigma * L * colour[RED]), 0), 1);
                         greenAccum = Math.min(Math.max(greenAccum + (alphaAccum * sigma * L * colour[GREEN]),0), 1);
@@ -346,6 +346,36 @@ public class CTHeadViewer {
             O = 0;
         }
         return new double[]{R, G, B, O};
+    }
+
+    /**
+     * The second transfer function for the visible human dataset. Calculates pixel colour from a
+     * voxel.
+     * @param voxel The voxel to get RGB value for.
+     * @return The RGB and opacity value for the pixel.
+     */
+    private double[] transferFunctionTwo(short voxel) {
+        double R, G, B, O;
+        if ((voxel > -299) && (voxel < 50)) {
+            R = 1.0;
+            G = 0.79;
+            B = 0.6;
+            O = opacity;
+        } else {
+            R = 0;
+            G = 0;
+            B = 0;
+            O = 0;
+        }
+        return new double[]{R, G, B, O};
+    }
+
+    private double[] getTransferFunction(short voxel, String tfName){
+        if (tfName.equals("TF1")){
+            return transferFunction(voxel);
+        } else {
+            return transferFunctionTwo(voxel);
+        }
     }
 
     /**
