@@ -16,7 +16,6 @@ public class CTHeadViewer {
     private final int SIDE_HEIGHT;
     private final double BONE_VALUE = 400;
     private final Volume ctHead;
-
     private double opacity = 0.12;
     private boolean isGradient = false;
     private boolean isGradientInterpolation = false;
@@ -70,6 +69,7 @@ public class CTHeadViewer {
             for (int i = 0; i < width; i++) {
                 voxel = getVoxel(view, i, j, slice);
                 colour = (((float) voxel - (float) ctHead.getMin()) / ((float) (ctHead.getMax() - ctHead.getMin())));
+                colour = Math.max(colour, 0);
                 image_writer.setColor(i, j, Color.color(colour, colour, colour, 1.0));
             } // column loop
         } // row loop
@@ -132,9 +132,9 @@ public class CTHeadViewer {
                         final int BLUE = 2;
                         double[] colour = transferFunction(currentVoxel);
                         double sigma = colour[3];
-                        redAccum = Math.min(redAccum + (alphaAccum * sigma * L * colour[RED]), 1);
-                        greenAccum = Math.min(greenAccum + (alphaAccum * sigma * L * colour[GREEN]), 1);
-                        blueAccum = Math.min(blueAccum + (alphaAccum * sigma * L * colour[BLUE]), 1);
+                        redAccum = Math.min(Math.max(redAccum + (alphaAccum * sigma * L * colour[RED]), 0), 1);
+                        greenAccum = Math.min(Math.max(greenAccum + (alphaAccum * sigma * L * colour[GREEN]),0), 1);
+                        blueAccum = Math.min(Math.max(blueAccum + (alphaAccum * sigma * L * colour[BLUE]),0), 1);
                         alphaAccum = alphaAccum * (1 - sigma);
                     }
                 }
@@ -167,8 +167,8 @@ public class CTHeadViewer {
             intersection.setC(exactZ);
         }
 
-        final double LIGHT_SOURCE_Y = 20;
-        final double LIGHT_SOURCE_Z = 256;
+        final double LIGHT_SOURCE_Y = (double) ctHead.getCT_z_axis() / 2;
+        final double LIGHT_SOURCE_Z = ctHead.getCT_x_axis();
         Vector lightSourcePosition = new Vector(lightSourceX, LIGHT_SOURCE_Y, LIGHT_SOURCE_Z);
         Vector lightDirection = lightSourcePosition.subtract(intersection);
         lightDirection.normalize();

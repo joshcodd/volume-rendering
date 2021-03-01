@@ -39,23 +39,21 @@ public class Volume {
         volume = new short[CT_z_axis][CT_y_axis][CT_x_axis];
 
         for (int k = 0; k < CT_z_axis; k++) {
-//            for (int i = 0; i < 3416; i++){
-//                in.readByte();
-//            }
             for (int j = 0; j < CT_y_axis; j++) {
                 for (int i=0; i < CT_x_axis; i++) {
                     b1 = ((int) in.readByte()) & 0xff;
                     b2 = ((int) in.readByte()) & 0xff;
+
                     //swap bytes
                     if (!isCorrectEndian) {
                         read = (short) ((b2 << 8) | b1);
                     } else {
-                        read = (short) ((b1 << 8) | b2);
+                        read = (short) (b1 << 8 | b2);
                     }
 
                     if (read < min) min = read;
                     if (read > max) max = read;
-                    volume[k][j][i]=read;
+                    volume[k][j][i]= read;
                 }
             }
         }
