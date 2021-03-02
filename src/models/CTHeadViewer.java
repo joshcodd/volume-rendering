@@ -370,6 +370,12 @@ public class CTHeadViewer {
         return new double[]{R, G, B, O};
     }
 
+    /**
+     * Handles which transfer function to use based on the name passed in.
+     * @param voxel The voxel to use in the transfer function.
+     * @param tfName The name of the transfer function to use.
+     * @return The result from specified TF.
+     */
     private double[] getTransferFunction(short voxel, String tfName){
         if (tfName.equals("TF1")){
             return transferFunction(voxel);
