@@ -1,4 +1,5 @@
 package models;
+import java.lang.*;
 import java.io.*;
 
 /**
@@ -40,7 +41,7 @@ public class Volume {
 
         for (int k = 0; k < CT_z_axis; k++) {
             for (int j = 0; j < CT_y_axis; j++) {
-                for (int i=0; i < CT_x_axis; i++) {
+                for (int i = 0; i < CT_x_axis; i++) {
                     b1 = ((int) in.readByte()) & 0xff;
                     b2 = ((int) in.readByte()) & 0xff;
 
@@ -53,10 +54,11 @@ public class Volume {
 
                     if (read < min) min = read;
                     if (read > max) max = read;
-                    volume[k][j][i]= read;
+                    volume[k][j][i] = read;
                 }
             }
         }
+        resampleVisibleHuman();
         System.out.println(min+" "+max); //diagnostic - for CThead this should be -1117, 2248
     }
 
@@ -109,5 +111,104 @@ public class Volume {
      */
     public int getCT_z_axis() {
         return CT_z_axis;
+    }
+
+    /**
+     * Re-samples and therefore fixes the female visible human data set.
+     * Due to the cadaver being moved around, there are some issues with the dataset. This
+     * Fixes those issues by re-sampling.
+     */
+    public void resampleVisibleHuman(){
+        for (int j = 0; j < 209; j++) {
+            short[][] temp = resizeMatrix(volume[j], CT_x_axis, CT_y_axis, (int)(CT_x_axis /1.9), (int)(CT_y_axis/1.9));
+            volume[j] = centreContent(temp, CT_x_axis, CT_y_axis);
+        }
+
+        for (int j = 209; j < 227; j++) {
+            short[][] temp = resizeMatrix(volume[j], CT_x_axis, CT_y_axis, (int)(CT_x_axis /1.3), (int)(CT_y_axis/1.3));
+            volume[j] = centreContent(temp, CT_x_axis, CT_y_axis);
+        }
+
+        for (int j = 227; j < 249; j++) {
+            short[][] temp = resizeMatrix(volume[j], CT_x_axis, CT_y_axis, (int)(CT_x_axis /1.1), (int)(CT_y_axis/1.1));
+            volume[j] = centreContent(temp, CT_x_axis, CT_y_axis);
+        }
+
+        if (CT_z_axis > 1117) {
+            for (int j = 1106; j < 1110; j++) {
+                short[][] temp = resizeMatrix(volume[j], CT_x_axis, CT_y_axis, (int) (CT_x_axis / 1.3), (int) (CT_y_axis / 1.3));
+                volume[j] = centreContent(temp, CT_x_axis, CT_y_axis);
+            }
+
+            for (int j = 1117; j < CT_z_axis; j++) {
+                short[][] temp = resizeMatrix(volume[j], CT_x_axis, CT_y_axis, (int) (CT_x_axis / 1.3), (int) (CT_y_axis / 1.3));
+                volume[j] = centreContent(temp, CT_x_axis, CT_y_axis);
+            }
+        }
+    }
+
+    /**
+     * Resizes a matrix to a specified size.
+     * @param matrix The matrix to resize.
+     * @param width The width of the matrix to resize.
+     * @param height The height of the matrix to resize.
+     * @param resizeW The width to resize to.
+     * @param resizeH The height to resize to.
+     * @return Th matrix of the new size.
+     */
+    private short[][] resizeMatrix(short[][] matrix, int width, int height, int resizeW, int resizeH) {
+        short[][] resized = createMatrix(resizeW, resizeH);
+        for (int x = 0; x < resizeW; x++) {
+            for (int y = 0; y < resizeH; y++) {
+                int nearestX = (x * width + resizeW / 2) / resizeW;
+                int nearestY = (y * height + resizeH / 2) / resizeH;
+                resized[x][y] = matrix[nearestX][nearestY];
+            }
+        }
+        return resized;
+    }
+
+    /**
+     * Centres a matrix within a larger container matrix of specified size.
+     * @param content The smaller matrix to centre.
+     * @param containerWidth The width of the container.
+     * @param containerHeight The height of the container.
+     * @return The new matrix.
+     */
+    private short[][] centreContent(short[][] content, int containerWidth, int containerHeight) {
+        short[][] output = createMatrix(containerWidth, containerHeight);
+        int length = content.length;
+        int centreBegins = ((getCT_x_axis() - content.length) / 2);
+        int xCentre = 0;
+        for ( int x = 0; x < containerWidth; x++) {
+            int yCentre = 0;
+            for ( int y = 0; y < containerHeight; y++) {
+                if (y >  centreBegins && y < centreBegins + length ){
+                    output[x][y] = content[xCentre][yCentre];
+                    yCentre++;
+                }
+            }
+            if (x > centreBegins && x < centreBegins + length){
+                xCentre++;
+            }
+        }
+        return output;
+    }
+
+    /**
+     * Creates a matrix of a specified size, and sets all values to default to
+     * -1024, the hounsfield value of air.
+     * @param width the width of the matrix to create.
+     * @param height the height of the matrix to create.
+     * @return a matrix of specified height.
+     */
+    private short[][] createMatrix (int width, int height){
+        short[][] arr = new short[width][height];
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < height; ++y) {
+                arr[x][y] = -1024;
+            }
+        }
+        return arr;
     }
 }
