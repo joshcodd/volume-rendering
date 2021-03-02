@@ -52,9 +52,9 @@
          </HBox.margin>
       </CheckBox>
    </HBox>
-   <Button fx:id="submitButton" mnemonicParsing="false" onAction="#handleSubmitClick" prefHeight="46.0" prefWidth="251.0" style="-fx-border-insets: 5; -fx-background-insets: 5; -fx-padding: 15;" text="Submit" textFill="#aeaeae" VBox.vgrow="ALWAYS">
+   <Button fx:id="submitButton" mnemonicParsing="false" onAction="#handleSubmitClick" prefHeight="47.0" prefWidth="250.0" style="-fx-border-insets: 5; -fx-background-insets: 5; -fx-padding: 15;" text="Submit" textFill="#aeaeae" VBox.vgrow="ALWAYS">
       <VBox.margin>
          <Insets top="50.0" />
       </VBox.margin></Button>
-   <Button fx:id="defaultButton" mnemonicParsing="false" onAction="#handleDefaultClick" prefHeight="47.0" prefWidth="255.0" style="-fx-border-insets: 7; -fx-background-insets: 7; -fx-padding: 10;" text="Default data set" textFill="#aeaeae" />
+   <Button fx:id="defaultButton" mnemonicParsing="false" onAction="#handleDefaultClick" prefHeight="47.0" prefWidth="250.0" style="-fx-border-insets: 5; -fx-background-insets: 5; -fx-padding: 15;" text="Default data set" textFill="#aeaeae" VBox.vgrow="ALWAYS" />
 </VBox>

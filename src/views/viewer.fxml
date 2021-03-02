@@ -45,7 +45,7 @@
                            <Insets bottom="10.0" />
                         </VBox.margin>
                      </Slider>
-                     <Button fx:id="midSlideButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0" style="-fx-padding: 10;" text="Slice 76" textFill="#aeaeae" VBox.vgrow="ALWAYS">
+                     <Button fx:id="midSlideButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="250.0" style="-fx-padding: 10;" text="Slice 76" textFill="#aeaeae" VBox.vgrow="ALWAYS">
                         <font>
                            <Font name="System Bold" size="13.0" />
                         </font>
@@ -65,7 +65,7 @@
                      </Label>
                   </HBox>
                   <VBox maxHeight="-Infinity" maxWidth="-Infinity">
-                     <Button fx:id="mipButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0" style="-fx-padding: 10;" text="Maximum Intensity Projection" textFill="#aeaeae" VBox.vgrow="ALWAYS">
+                     <Button fx:id="mipButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="250.0" style="-fx-padding: 10;" text="Maximum Intensity Projection" textFill="#aeaeae" VBox.vgrow="ALWAYS">
                         <VBox.margin>
                            <Insets bottom="10.0" />
                         </VBox.margin>
@@ -73,7 +73,7 @@
                            <Font name="System Bold" size="13.0" />
                         </font>
                      </Button>
-                     <Button fx:id="volumeRenderButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0" style="-fx-padding: 10;" text="Volume Render" textFill="#aeaeae" VBox.vgrow="ALWAYS">
+                     <Button fx:id="volumeRenderButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="250.0" style="-fx-padding: 10;" text="Volume Render" textFill="#aeaeae" VBox.vgrow="ALWAYS">
                         <VBox.margin>
                            <Insets bottom="10.0" />
                         </VBox.margin>
@@ -81,24 +81,30 @@
                            <Font name="System Bold" size="13.0" />
                         </font>
                      </Button>
-                     <VBox fx:id="volRendMenu" visible="false">
-                        <Label text="Transfer Function" textFill="#aeaeae">
+                     <VBox fx:id="volRendMenu" alignment="CENTER" visible="false">
+                        <HBox alignment="CENTER_LEFT" maxWidth="-Infinity" prefWidth="240.0">
                            <VBox.margin>
                               <Insets bottom="4.0" />
                            </VBox.margin>
-                        </Label>
-                        <ChoiceBox fx:id="tfChoice" prefHeight="27.0" prefWidth="230.0" VBox.vgrow="ALWAYS" />
-                        <Label alignment="CENTER" text="Opacity" textFill="#aeaeae">
+                           <children>
+                              <Label alignment="TOP_LEFT" text="Transfer Function" textFill="#aeaeae" />
+                           </children>
+                        </HBox>
+                        <ChoiceBox fx:id="tfChoice" prefHeight="27.0" prefWidth="240.0" VBox.vgrow="ALWAYS" />
+                        <HBox alignment="CENTER_LEFT" maxWidth="-Infinity" prefWidth="240.0">
                            <VBox.margin>
                               <Insets top="10.0" />
                            </VBox.margin>
-                        </Label>
-                        <Slider fx:id="opacitySlider" maxWidth="-Infinity" prefWidth="230.0" value="12.0" VBox.vgrow="NEVER">
+                           <children>
+                              <Label alignment="TOP_LEFT" text="Opacity" textFill="#aeaeae" />
+                           </children>
+                        </HBox>
+                        <Slider fx:id="opacitySlider" maxWidth="-Infinity" prefWidth="240.0" value="12.0" VBox.vgrow="NEVER">
                            <VBox.margin>
                               <Insets bottom="10.0" />
                            </VBox.margin>
                         </Slider>
-                        <Button fx:id="gradientButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0" style="-fx-padding: 10;" text="Gradient Shading" textFill="#aeaeae" VBox.vgrow="ALWAYS">
+                        <Button fx:id="gradientButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="240.0" style="-fx-padding: 10;" text="Gradient Shading" textFill="#aeaeae" VBox.vgrow="ALWAYS">
                            <font>
                               <Font name="System Bold" size="13.0" />
                            </font>
@@ -106,26 +112,32 @@
                               <Insets bottom="10.0" />
                            </VBox.margin>
                         </Button>
-                        <VBox fx:id="lightMenu" visible="false">
-                           <Button fx:id="gradientInterpolationButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="230.0" style="-fx-padding: 10;" text="Interpolation: Off" textFill="#aeaeae" VBox.vgrow="ALWAYS">
+                        <VBox fx:id="lightMenu" alignment="CENTER" visible="false">
+                           <Button fx:id="gradientInterpolationButton" mnemonicParsing="false" prefHeight="27.0" prefWidth="240.0" style="-fx-padding: 10;" text="Interpolation: Off" textFill="#aeaeae" VBox.vgrow="ALWAYS">
                               <font>
                                  <Font name="System Bold" size="13.0" />
                               </font>
                            </Button>
-                           <Label text="Light source" textFill="#aeaeae">
+                           <HBox alignment="CENTER_LEFT" maxWidth="-Infinity" prefWidth="240.0">
                               <VBox.margin>
                                  <Insets top="10.0" />
                               </VBox.margin>
-                           </Label>
-                           <Slider fx:id="lightSource" max="256" />
+                              <children>
+                                 <Label alignment="TOP_LEFT" text="Light source" textFill="#aeaeae" />
+                              </children>
+                           </HBox>
+                           <Slider fx:id="lightSource" max="256" maxWidth="-Infinity" prefWidth="240.0" />
                            <VBox.margin>
                               <Insets bottom="40.0" />
                            </VBox.margin>
                         </VBox>
+                        <VBox.margin>
+                           <Insets top="10.0" />
+                        </VBox.margin>
                      </VBox>
                   </VBox>
                   <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
-                     <Button fx:id="openFileButton" mnemonicParsing="false" prefHeight="22.0" prefWidth="230.0" text="Open file" textFill="#aeaeae">
+                     <Button fx:id="openFileButton" mnemonicParsing="false" prefHeight="22.0" prefWidth="250.0" text="Open file" textFill="#aeaeae">
                         <font>
                            <Font size="11.0" />
                         </font>
