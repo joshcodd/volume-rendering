@@ -120,28 +120,33 @@ public class Volume {
      */
     public void resampleVisibleHuman(){
         for (int j = 0; j < 209; j++) {
-            short[][] temp = resizeMatrix(volume[j], CT_x_axis, CT_y_axis, (int)(CT_x_axis /1.9), (int)(CT_y_axis/1.9));
+            short[][] temp = resizeMatrix(volume[j], CT_x_axis, CT_y_axis, (int)(CT_x_axis /1.9),
+                    (int)(CT_y_axis/1.9));
             volume[j] = centreContent(temp, CT_x_axis, CT_y_axis);
         }
 
         for (int j = 209; j < 227; j++) {
-            short[][] temp = resizeMatrix(volume[j], CT_x_axis, CT_y_axis, (int)(CT_x_axis /1.3), (int)(CT_y_axis/1.3));
+            short[][] temp = resizeMatrix(volume[j], CT_x_axis, CT_y_axis, (int)(CT_x_axis /1.3),
+                    (int)(CT_y_axis/1.3));
             volume[j] = centreContent(temp, CT_x_axis, CT_y_axis);
         }
 
         for (int j = 227; j < 249; j++) {
-            short[][] temp = resizeMatrix(volume[j], CT_x_axis, CT_y_axis, (int)(CT_x_axis /1.1), (int)(CT_y_axis/1.1));
+            short[][] temp = resizeMatrix(volume[j], CT_x_axis, CT_y_axis, (int)(CT_x_axis /1.1),
+                    (int)(CT_y_axis/1.1));
             volume[j] = centreContent(temp, CT_x_axis, CT_y_axis);
         }
 
         if (CT_z_axis > 1117) {
             for (int j = 1106; j < 1110; j++) {
-                short[][] temp = resizeMatrix(volume[j], CT_x_axis, CT_y_axis, (int) (CT_x_axis / 1.3), (int) (CT_y_axis / 1.3));
+                short[][] temp = resizeMatrix(volume[j], CT_x_axis, CT_y_axis, (int) (CT_x_axis / 1.3),
+                        (int) (CT_y_axis / 1.3));
                 volume[j] = centreContent(temp, CT_x_axis, CT_y_axis);
             }
 
             for (int j = 1117; j < CT_z_axis; j++) {
-                short[][] temp = resizeMatrix(volume[j], CT_x_axis, CT_y_axis, (int) (CT_x_axis / 1.3), (int) (CT_y_axis / 1.3));
+                short[][] temp = resizeMatrix(volume[j], CT_x_axis, CT_y_axis, (int) (CT_x_axis / 1.3),
+                        (int) (CT_y_axis / 1.3));
                 volume[j] = centreContent(temp, CT_x_axis, CT_y_axis);
             }
         }
@@ -203,12 +208,12 @@ public class Volume {
      * @return a matrix of specified height.
      */
     private short[][] createMatrix (int width, int height){
-        short[][] arr = new short[width][height];
+        short[][] matrix = new short[width][height];
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
-                arr[x][y] = -1024;
+                matrix[x][y] = -1024;
             }
         }
-        return arr;
+        return matrix;
     }
 }
