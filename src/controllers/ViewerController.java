@@ -2,6 +2,7 @@ package controllers;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
@@ -38,6 +39,8 @@ public class ViewerController {
     public VBox volRendMenu;
     public VBox lightMenu;
     public ChoiceBox<String> tfChoice;
+    public ScrollPane sc;
+
 
     private Stage stage;
     private CTHeadViewer ctHead;
@@ -53,6 +56,7 @@ public class ViewerController {
      * Initialises UI elements to be ready for display.
      */
     public void init() {
+
         top_image = new WritableImage(ctHead.getTop_width(), ctHead.getTop_height());
         front_image = new WritableImage(ctHead.getFront_width(), ctHead.getFront_height());
         side_image = new WritableImage(ctHead.getSide_width(), ctHead.getSide_height());
@@ -164,7 +168,10 @@ public class ViewerController {
             }
         });
 
-        openFileButton.setOnAction(e -> menu.getRoot().setVisible(!menu.getRoot().isVisible()));
+        openFileButton.setOnAction(e -> {
+            menu.getRoot().setVisible(!menu.getRoot().isVisible());
+            volRendMenu.setManaged(false);
+        });
     }
 
     /**
@@ -231,6 +238,14 @@ public class ViewerController {
      */
     public StackPane getMenuPane() {
         return menuPane;
+    }
+
+    /**
+     * Gets the pane in which the volume rendering options are to be displayed in.
+     * @return The volume rendering menu pane.
+     */
+    public VBox getVolRendMenu() {
+        return volRendMenu;
     }
 
     /**

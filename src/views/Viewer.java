@@ -60,9 +60,9 @@ public class Viewer {
             Parent root = loader.load(Objects.requireNonNull(getClass().getClassLoader()
                     .getResource("views/viewer.fxml"))
                     .openStream());
-
             Scene scene = new Scene(root, 890, 550);
             controller = loader.getController();
+            controller.getVolRendMenu().setManaged(false);
             scene.getStylesheets().add("styles.css");
             controller.getMenuPane().getChildren().add(menu);
             stage.setScene(scene);
