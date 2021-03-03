@@ -158,6 +158,7 @@ public class Volume {
 
     /**
      * Resizes a matrix to a specified size.
+     * Uses ne
      * @param matrix The matrix to resize.
      * @param width The width of the matrix to resize.
      * @param height The height of the matrix to resize.
@@ -169,8 +170,8 @@ public class Volume {
         short[][] resized = createMatrix(resizeW, resizeH);
         for (int x = 0; x < resizeW; x++) {
             for (int y = 0; y < resizeH; y++) {
-                int nearestX = (x * width + resizeW / 2) / resizeW;
-                int nearestY = (y * height + resizeH / 2) / resizeH;
+                int nearestX = (int) (x * (float) width  / resizeW);
+                int nearestY = (int) (y * (float) height / resizeH);
                 resized[x][y] = matrix[nearestX][nearestY];
             }
         }
