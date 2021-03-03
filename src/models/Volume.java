@@ -31,7 +31,7 @@ public class Volume {
      * @param isCorrectEndian If the file is in the correct endian or not.
      * @throws IOException If file ends prematurely/wrong size volume.
      */
-    public void ReadData(String filename, Boolean isCorrectEndian) throws IOException {
+    public void ReadData(String filename, boolean isCorrectEndian, boolean isVH) throws IOException {
         File file = new File(filename);
         DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
         min=Short.MAX_VALUE; max=Short.MIN_VALUE;
@@ -58,7 +58,10 @@ public class Volume {
                 }
             }
         }
-        resampleVisibleHuman();
+
+        if (isVH) { //Re-sample if user selected file is visible human project.
+            resampleVisibleHuman();
+        }
         System.out.println(min+" "+max); //diagnostic - for CThead this should be -1117, 2248
     }
 

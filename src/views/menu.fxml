@@ -45,13 +45,20 @@
       <VBox.margin>
          <Insets bottom="5.0" />
       </VBox.margin></TextField>
-   <HBox alignment="CENTER_LEFT" maxWidth="-Infinity" prefWidth="240.0">
-      <CheckBox fx:id="correctEndianBox" alignment="CENTER" mnemonicParsing="false" text="Correct endian?" textFill="#aeaeae">
-         <HBox.margin>
-            <Insets bottom="5.0" top="5.0" />
-         </HBox.margin>
-      </CheckBox>
-   </HBox>
+   <VBox maxWidth="-Infinity" prefWidth="240.0">
+      <children>
+         <CheckBox fx:id="correctEndianBox" alignment="CENTER" mnemonicParsing="false" text="Big-endian?" textFill="#aeaeae">
+            <VBox.margin>
+               <Insets bottom="5.0" top="5.0" />
+            </VBox.margin>
+         </CheckBox>
+         <CheckBox fx:id="vhResampleBox" alignment="CENTER" mnemonicParsing="false" text="Visible human re-sampling?" textFill="#aeaeae">
+            <VBox.margin>
+               <Insets top="5.0" />
+            </VBox.margin>
+         </CheckBox>
+      </children>
+   </VBox>
    <Button fx:id="submitButton" mnemonicParsing="false" onAction="#handleSubmitClick" prefHeight="47.0" prefWidth="250.0" style="-fx-border-insets: 5; -fx-background-insets: 5; -fx-padding: 15;" text="Submit" textFill="#aeaeae" VBox.vgrow="ALWAYS">
       <VBox.margin>
          <Insets top="50.0" />

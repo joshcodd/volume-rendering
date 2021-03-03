@@ -22,6 +22,7 @@ public class MenuController {
     private int yAxis = 0;
     private int zAxis = 0;
     private boolean isCorrectEndian = false;
+    private boolean isVH = false;
     private Stage stage;
 
     @FXML
@@ -33,6 +34,7 @@ public class MenuController {
     public ChoiceBox<String> filenameChoiceBox;
     public Button defaultButton;
     public VBox menuPane;
+    public CheckBox vhResampleBox;
 
     /**
      * Initializes the user interface elements.
@@ -57,6 +59,9 @@ public class MenuController {
         correctEndianBox.selectedProperty().addListener((observable, oldValue, newValue) ->
                 isCorrectEndian = newValue);
 
+        vhResampleBox.selectedProperty().addListener((observable, oldValue, newValue) ->
+                isVH = newValue);
+
         filenameChoiceBox.setItems(getScans());
 
         filenameChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -74,7 +79,7 @@ public class MenuController {
     public void handleSubmitClick() {
         Volume v = new Volume(xAxis, yAxis, zAxis);
         try {
-            v.ReadData(filename, isCorrectEndian);
+            v.ReadData(filename, isCorrectEndian, isVH);
             new Viewer(stage, new CTHeadViewer(v));
         } catch (Exception e){
             Alert error = new Alert(Alert.AlertType.ERROR,
@@ -91,7 +96,7 @@ public class MenuController {
     public void handleDefaultClick() {
         Volume v = new Volume(256,256, 113);
         try {
-        v.ReadData("src/data/CThead", false);
+        v.ReadData("src/data/CThead", false, false);
 
         new Viewer(stage, new CTHeadViewer(v));
         } catch (Exception e){
