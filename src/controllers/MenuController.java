@@ -65,8 +65,8 @@ public class MenuController {
         filenameChoiceBox.setItems(getScans());
 
         filenameChoiceBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-                filename = "src/data/" + newValue;
-                isFilledIn();
+            filename = "src/data/" + newValue;
+            isFilledIn();
         });
 
         submitButton.setDisable(true);
@@ -96,9 +96,9 @@ public class MenuController {
     public void handleDefaultClick() {
         Volume v = new Volume(256,256, 113);
         try {
-        v.ReadData("src/data/CThead", false, false);
+            v.ReadData("src/data/CThead", false, false);
 
-        new Viewer(stage, new CTHeadViewer(v));
+            new Viewer(stage, new CTHeadViewer(v));
         } catch (Exception e){
             Alert error = new Alert(Alert.AlertType.ERROR,
                     "An error was encountered.",
