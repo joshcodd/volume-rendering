@@ -158,7 +158,7 @@ public class Volume {
 
     /**
      * Resizes a matrix to a specified size.
-     * Uses ne
+     * Uses nearest neighbor.
      * @param matrix The matrix to resize.
      * @param width The width of the matrix to resize.
      * @param height The height of the matrix to resize.
