@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="menuPane" alignment="CENTER" style="-fx-background-color: #1D1D1D #1D1D1D; -fx-padding: 20;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MenuController">
+<VBox fx:id="menuPane" alignment="CENTER" style="-fx-background-color: #1D1D1D #1D1D1D; -fx-padding: 20;" xmlns="http://javafx.com/javafx/" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MenuController">
    <HBox maxWidth="-Infinity" prefWidth="240.0">
       <Label text="Select scan file:" textFill="#aeaeae">
          <HBox.margin>
@@ -46,18 +46,18 @@
          <Insets bottom="5.0" />
       </VBox.margin></TextField>
    <VBox maxWidth="-Infinity" prefWidth="240.0">
-      <children>
-         <CheckBox fx:id="correctEndianBox" alignment="CENTER" mnemonicParsing="false" text="Big-endian?" textFill="#aeaeae">
-            <VBox.margin>
-               <Insets bottom="5.0" top="5.0" />
-            </VBox.margin>
-         </CheckBox>
-         <CheckBox fx:id="vhResampleBox" alignment="CENTER" mnemonicParsing="false" text="Visible human re-sampling?" textFill="#aeaeae">
-            <VBox.margin>
-               <Insets top="5.0" />
-            </VBox.margin>
-         </CheckBox>
-      </children>
+      <CheckBox fx:id="correctEndianBox" alignment="CENTER" mnemonicParsing="false" text="Big-endian?"
+                textFill="#aeaeae">
+         <VBox.margin>
+            <Insets bottom="5.0" top="5.0"/>
+         </VBox.margin>
+      </CheckBox>
+      <CheckBox fx:id="vhResampleBox" alignment="CENTER" mnemonicParsing="false" text="Visible human re-sampling?"
+                textFill="#aeaeae">
+         <VBox.margin>
+            <Insets top="5.0"/>
+         </VBox.margin>
+      </CheckBox>
    </VBox>
    <Button fx:id="submitButton" mnemonicParsing="false" onAction="#handleSubmitClick" prefHeight="47.0" prefWidth="250.0" style="-fx-border-insets: 5; -fx-background-insets: 5; -fx-padding: 15;" text="Submit" textFill="#aeaeae" VBox.vgrow="ALWAYS">
       <VBox.margin>
