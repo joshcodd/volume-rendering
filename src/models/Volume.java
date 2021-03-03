@@ -29,6 +29,7 @@ public class Volume {
      * Populates the volume with data from file.
      * @param filename The name of the file to read from.
      * @param isCorrectEndian If the file is in the correct endian or not.
+     * @param isVH If the volume is the VH project and therefore needs re-sampling.
      * @throws IOException If file ends prematurely/wrong size volume.
      */
     public void ReadData(String filename, boolean isCorrectEndian, boolean isVH) throws IOException {
@@ -121,7 +122,7 @@ public class Volume {
      * Due to the cadaver being moved around, there are some issues with the dataset. This
      * Fixes those issues by re-sampling.
      */
-    public void resampleVisibleHuman(){
+    private void resampleVisibleHuman(){
         for (int j = 0; j < 209; j++) {
             short[][] temp = resizeMatrix(volume[j], CT_x_axis, CT_y_axis, (int)(CT_x_axis /1.9),
                     (int)(CT_y_axis/1.9));
