@@ -167,7 +167,7 @@ public class CTHeadViewer {
             intersection.setC(exactZ);
         }
 
-        final double LIGHT_SOURCE_Y = (double) ctHead.getCT_z_axis() / 2;
+        final double LIGHT_SOURCE_Y = (double) ctHead.getCT_z_axis() / 4;
         final double LIGHT_SOURCE_Z = ctHead.getCT_x_axis();
         Vector lightSourcePosition = new Vector(lightSourceX, LIGHT_SOURCE_Y, LIGHT_SOURCE_Z);
         Vector lightDirection = lightSourcePosition.subtract(intersection);
