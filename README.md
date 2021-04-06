@@ -9,6 +9,11 @@ An application to render CT scans and view the data using various techniques, in
 
 When volume rendering the opacity of the skin is able to be changed. Also, when using either gradient shading option, the light source is able to be moved along the X axis. Both of these features are controlled using their respective sliders located in the side bar.
 
+## Default datasets:
+I have included some datasets to be used as default ones. In this case, the file name of the dataset include the dimensions of the X, Y and Z axis in that order. These are the dimensions to be used in the axis length input boxes when loading a file.
+
+e.g  The filename CThead_256x256x113 has an X axis length of 256, a Y axis length of 256 and a Z axis length of 113.
+
 ## Use your own datasets:
 All datasets that use Hounsfield unit are possible to be rendered using this application. In order to render a CT scan of your own you must have the dimensions of the 3D dataset, the dataset must also be headerless. Place your CT scan into the directory named "data", it will then be selectable in the drop down menu to load a CT scan.
 
