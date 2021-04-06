@@ -19,7 +19,7 @@ The Visible human project includes a CT scan of a a full human cadaver. I have p
 * Place this file within the directory 'src/data'.
 * Ensure the "big-endian?" and "visible human re-sampling?" check boxes are checked when selecting this file.
 
-<br>This scan may take a long time to render. To only view the data chest up and increase speed, set the Z axis length to 512 as well.
+This scan may take a long time to render. To only view the data chest up and increase speed, set the Z axis length to 512 as well.
 <br>**Please note the size of this file tends towards 1GB
 
 Read more about the visible human project, and view the original data here: [Visible Human Project](https://www.nlm.nih.gov/research/visible/visible_human.html)
