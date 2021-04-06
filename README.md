@@ -8,7 +8,7 @@ An application to render CT scans and view the data using various techniques, in
 * Smooth gradient shading using interpolation
 
 When volume rendering the opacity of the skin is able to be changed. Also, when using either gradient shading option, the light source is able to be moved along the X axis. Both of these features are controlled using their respective sliders located in the side bar.
-<br>
+<br/>
 
 ## Default datasets:
 I have included some datasets to be used as default ones. In this case, the file name of the dataset include the dimensions of the X, Y and Z axis in that order. These are the dimensions to be used in the axis length input boxes when loading a file.
