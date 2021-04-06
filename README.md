@@ -13,7 +13,7 @@ When volume rendering the opacity of the skin is able to be changed. Also, when 
 ## Default datasets:
 I have included some datasets to be used as default ones. In this case, the file name of the dataset include the dimensions of the X, Y and Z axis in that order. These are the dimensions to be used in the axis length input boxes when loading a file.
 
-e.g  The filename CThead_256x256x113 has an X axis length of 256, a Y axis length of 256 and a Z axis length of 113.
+e.g. The filename CThead_256x256x113 has an X axis length of 256, a Y axis length of 256 and a Z axis length of 113.
 
 
 ## Visible Human Project
@@ -28,7 +28,9 @@ Read more about the visible human project, and view the original data here: [Vis
 
 
 ## Use your own datasets:
-All datasets that use Hounsfield unit are possible to be rendered using this application. In order to render a CT scan of your own you must have the dimensions of the 3D dataset, the dataset must also be headerless. Place your CT scan into the directory named "data", it will then be selectable in the drop down menu to load a CT scan. Please note that only binary files are accepted at this point in time.
+All datasets that use Hounsfield unit are possible to be rendered using this application. In order to render a CT scan of your own you must have the dimensions of the 3D dataset, the dataset must also be headerless. Place your CT scan into the directory named "data", it will then be selectable in the drop down menu to load a CT scan. 
+
+Please note that only binary files are accepted at this point in time and that little endian is assumed unless big endian is selected.
 
 
 ## How to compile and run:
