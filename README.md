@@ -18,8 +18,9 @@ e.g  The filename CThead_256x256x113 has an X axis length of 256, a Y axis lengt
 The Visible human project includes a CT scan of a a full human cadaver. I have processed this CT scan for use in this application. <br>If you wish to render this, download the scan from the following drop box link : [VHPDataset](https://www.dropbox.com/s/r5sac892nje8ixk/VH_FULL_512_512_1734?dl=0)
 * Place this file within the directory 'src/data'.
 * Ensure the "big-endian?" and "visible human re-sampling?" check boxes are checked when selecting this file.
+
 <br>This scan may take a long time to render. To only view the data chest up and increase speed, set the Z axis length to 512 as well.
-<br>** Please note the size of this file tends towards 1GB
+<br>**Please note the size of this file tends towards 1GB
 
 Read more about the visible human project, and view the original data here: [Visible Human Project](https://www.nlm.nih.gov/research/visible/visible_human.html)
 
