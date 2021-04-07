@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
  * Represents a ct head scan viewer and the algorithms that can be carried out on them.
  * @author Josh Codd
  */
-public class CTHeadViewer {
+public class CTViewer {
     private final int TOP_WIDTH;
     private final int TOP_HEIGHT;
     private final int FRONT_WIDTH;
@@ -16,7 +16,7 @@ public class CTHeadViewer {
     private final int SIDE_WIDTH;
     private final int SIDE_HEIGHT;
     private final double BONE_VALUE = 400;
-    private final Volume ctHead;
+    private final Volume ctScan;
     private double opacity = 0.12;
     private boolean isGradient = false;
     private boolean isGradientInterpolation = false;
@@ -26,8 +26,8 @@ public class CTHeadViewer {
      * Creates a CT viewer.
      * @param volume The volume to use/display.
      */
-    public CTHeadViewer(Volume volume) {
-        this.ctHead = volume;
+    public CTViewer(Volume volume) {
+        this.ctScan = volume;
         this.TOP_WIDTH = volume.getCT_x_axis();
         this.TOP_HEIGHT = volume.getCT_y_axis();
         this.FRONT_WIDTH = volume.getCT_x_axis();
@@ -46,11 +46,11 @@ public class CTHeadViewer {
      */
     public short getVoxel(String view, int x, int y, int z) {
         if (view.equals("top")) {
-            return ctHead.getVoxel(z, y, x);
+            return ctScan.getVoxel(z, y, x);
         } else if (view.equals("side")) {
-            return ctHead.getVoxel(y, x, z);
+            return ctScan.getVoxel(y, x, z);
         } else {
-            return ctHead.getVoxel(y, z, x);
+            return ctScan.getVoxel(y, z, x);
         }
     }
 
@@ -69,7 +69,7 @@ public class CTHeadViewer {
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
                 voxel = getVoxel(view, i, j, slice);
-                colour = (((float) voxel - (float) ctHead.getMin()) / ((float) (ctHead.getMax() - ctHead.getMin())));
+                colour = (((float) voxel - (float) ctScan.getMin()) / ((float) (ctScan.getMax() - ctScan.getMin())));
                 colour = Math.max(colour, 0);
                 image_writer.setColor(i, j, Color.color(colour, colour, colour, 1.0));
             } // column loop
@@ -84,18 +84,18 @@ public class CTHeadViewer {
     public void maximumIntensityProjection(WritableImage image, String view) {
         PixelWriter image_writer = image.getPixelWriter();
         int width = (int) image.getWidth(), height = (int) image.getHeight();
-        int depth = (view.equals("top")) ? ctHead.getCT_z_axis() : ctHead.getCT_x_axis();
+        int depth = (view.equals("top")) ? ctScan.getCT_z_axis() : ctScan.getCT_x_axis();
 
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
-                short maximum = ctHead.getMin();
+                short maximum = ctScan.getMin();
                 for (int k = 0; k < depth; k++) {
                     short currentVoxel = getVoxel(view, i, j, k);
                     if (currentVoxel > maximum){
                         maximum = currentVoxel;
                     }
                 }
-                float colour = (((float) maximum - (float) ctHead.getMin()) / ((float) (ctHead.getMax() - ctHead.getMin())));
+                float colour = (((float) maximum - (float) ctScan.getMin()) / ((float) (ctScan.getMax() - ctScan.getMin())));
                 image_writer.setColor(i, j, Color.color(colour, colour, colour, 1.0));
             }//column
         }//row
@@ -110,7 +110,7 @@ public class CTHeadViewer {
         PixelWriter writer = image.getPixelWriter();
         int width = (int) image.getWidth();
         int height = (int) image.getHeight();
-        int depth = (view.equals("top")) ? ctHead.getCT_z_axis() : ctHead.getCT_x_axis();
+        int depth = (view.equals("top")) ? ctScan.getCT_z_axis() : ctScan.getCT_x_axis();
 
         IntStream.range(0, height).parallel().forEach(j -> {
             IntStream.range(0, width).parallel().forEach(i -> {
@@ -169,15 +169,14 @@ public class CTHeadViewer {
             intersection.setC(exactZ);
         }
 
-        final double LIGHT_SOURCE_Y = (double) ctHead.getCT_z_axis() / 4;
-        final double LIGHT_SOURCE_Z = ctHead.getCT_x_axis();
+        final double LIGHT_SOURCE_Y = (double) ctScan.getCT_z_axis() / 4;
+        final double LIGHT_SOURCE_Z = ctScan.getCT_x_axis();
         Vector lightSourcePosition = new Vector(lightSourceX, LIGHT_SOURCE_Y, LIGHT_SOURCE_Z);
         Vector lightDirection = lightSourcePosition.subtract(intersection);
         lightDirection.normalize();
         surfaceNormal.normalize();
         return Math.max(0, surfaceNormal.dotProduct(lightDirection));
     }
-
 
     /**
      * Calculates and returns the an estimate of the gradient/slope at the specified position, in which the z
@@ -390,8 +389,8 @@ public class CTHeadViewer {
      * Gets the volume of this viewer.
      * @return The volume.
      */
-    public Volume getCtHead() {
-        return ctHead;
+    public Volume getCtScan() {
+        return ctScan;
     }
 
     /**

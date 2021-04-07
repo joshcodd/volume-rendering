@@ -8,7 +8,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import models.CTHeadViewer;
+import models.CTViewer;
 import views.Menu;
 
 /**
@@ -41,9 +41,8 @@ public class ViewerController {
     public ChoiceBox<String> tfChoice;
     public ScrollPane sc;
 
-
     private Stage stage;
-    private CTHeadViewer ctHead;
+    private CTViewer ctViewer;
     private boolean isVolumeRendered = false;
     private boolean isMIP = false;
     private String transferFunction = "TF1";
@@ -56,10 +55,9 @@ public class ViewerController {
      * Initialises UI elements to be ready for display.
      */
     public void init() {
-
-        top_image = new WritableImage(ctHead.getTop_width(), ctHead.getTop_height());
-        front_image = new WritableImage(ctHead.getFront_width(), ctHead.getFront_height());
-        side_image = new WritableImage(ctHead.getSide_width(), ctHead.getSide_height());
+        top_image = new WritableImage(ctViewer.getTop_width(), ctViewer.getTop_height());
+        front_image = new WritableImage(ctViewer.getFront_width(), ctViewer.getFront_height());
+        side_image = new WritableImage(ctViewer.getSide_width(), ctViewer.getSide_height());
 
         Menu menu = new Menu(stage);
         menuPane.getChildren().add(menu.getRoot());
@@ -70,9 +68,9 @@ public class ViewerController {
         secondView.setImage(front_image);
         thirdView.setImage(side_image);
 
-        firstViewSlider.setMax(ctHead.getCtHead().getCT_z_axis() - 1);
-        secondViewSlider.setMax(ctHead.getCtHead().getCT_y_axis() - 1);
-        thirdViewSlider.setMax(ctHead.getCtHead().getCT_y_axis() - 1);
+        firstViewSlider.setMax(ctViewer.getCtScan().getCT_z_axis() - 1);
+        secondViewSlider.setMax(ctViewer.getCtScan().getCT_y_axis() - 1);
+        thirdViewSlider.setMax(ctViewer.getCtScan().getCT_y_axis() - 1);
 
         tfChoice.getItems().add("TF1");
         tfChoice.getItems().add("TF2");
@@ -109,57 +107,57 @@ public class ViewerController {
         });
 
         firstViewSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            ctHead.drawSlice(top_image, "top", newValue.intValue());
+            ctViewer.drawSlice(top_image, "top", newValue.intValue());
             sliderValueStyle(firstViewSlider);
             reset();
             isMIP = false;
         });
 
         secondViewSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            ctHead.drawSlice(front_image,"front", newValue.intValue());
+            ctViewer.drawSlice(front_image,"front", newValue.intValue());
             sliderValueStyle(secondViewSlider);
             reset();
             isMIP = false;
         });
 
         thirdViewSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            ctHead.drawSlice(side_image, "side", newValue.intValue());
+            ctViewer.drawSlice(side_image, "side", newValue.intValue());
             sliderValueStyle(thirdViewSlider);
             reset();
             isMIP = false;
         });
 
         opacitySlider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            ctHead.setOpacity((double) (newValue)/100.0);
+            ctViewer.setOpacity((double) (newValue)/100.0);
             volumeRender();
             sliderValueStyle(opacitySlider);
         });
 
         lightSource.valueProperty().addListener((observable, oldValue, newValue) -> {
-            ctHead.setLightSourceX(newValue.intValue());
+            ctViewer.setLightSourceX(newValue.intValue());
             volumeRender();
             sliderValueStyle(lightSource);
         });
 
         gradientButton.setOnAction(e -> {
-            ctHead.setGradientShading(!ctHead.getGradientShading());
-            lightMenu.setVisible(ctHead.getGradientShading());
+            ctViewer.setGradientShading(!ctViewer.getGradientShading());
+            lightMenu.setVisible(ctViewer.getGradientShading());
             lightMenu.setManaged(true);
             volumeRender();
         });
 
         gradientInterpolationButton.setOnAction(e -> {
-            ctHead.setGradientInterpolation(!ctHead.getGradientInterpolation());
-            String value = ctHead.getGradientInterpolation() ? "On" : "Off";
+            ctViewer.setGradientInterpolation(!ctViewer.getGradientInterpolation());
+            String value = ctViewer.getGradientInterpolation() ? "On" : "Off";
             gradientInterpolationButton.setText("Interpolation: " + value);
             volumeRender();
         });
 
         mipButton.setOnAction(e -> {
             if (!isMIP) {
-                ctHead.maximumIntensityProjection(top_image, "top");
-                ctHead.maximumIntensityProjection(side_image, "side");
-                ctHead.maximumIntensityProjection(front_image, "front");
+                ctViewer.maximumIntensityProjection(top_image, "top");
+                ctViewer.maximumIntensityProjection(side_image, "side");
+                ctViewer.maximumIntensityProjection(front_image, "front");
                 reset();
                 isMIP = true;
             } else {
@@ -181,8 +179,8 @@ public class ViewerController {
         volRendMenu.setVisible(false);
         volRendMenu.setManaged(false);
         isVolumeRendered = false;
-        ctHead.setGradientShading(false);
-        ctHead.setGradientInterpolation(false);
+        ctViewer.setGradientShading(false);
+        ctViewer.setGradientInterpolation(false);
         gradientInterpolationButton.setText("Interpolation: Off");
         lightMenu.setVisible(false);
         lightMenu.setManaged(false);
@@ -192,9 +190,9 @@ public class ViewerController {
      * Carried out volume rendering on all views.
      */
     public void volumeRender(){
-        ctHead.volumeRender(side_image, "side", transferFunction);
-        ctHead.volumeRender(top_image, "top", transferFunction);
-        ctHead.volumeRender(front_image, "front", transferFunction);
+        ctViewer.volumeRender(side_image, "side", transferFunction);
+        ctViewer.volumeRender(top_image, "top", transferFunction);
+        ctViewer.volumeRender(front_image, "front", transferFunction);
     }
 
     /**
@@ -212,8 +210,8 @@ public class ViewerController {
      * Sets the viewer to use.
      * @param ctHead The viewer to use.
      */
-    public void setCTHeadViewer (CTHeadViewer ctHead) {
-        this.ctHead = ctHead;
+    public void setCTHeadViewer (CTViewer ctHead) {
+        this.ctViewer = ctHead;
     }
 
     /**

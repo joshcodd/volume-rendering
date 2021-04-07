@@ -6,7 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
-import models.CTHeadViewer;
+import models.CTViewer;
 import java.util.Objects;
 
 /**
@@ -18,9 +18,9 @@ public class Viewer {
     /**
      * Creates and displays a viewer using the specified ct viewer.
      * @param stage The stage to display this scene on.
-     * @param ctHead The viewer to display.
+     * @param ctViewer The viewer to display.
      */
-    public Viewer(Stage stage, CTHeadViewer ctHead){
+    public Viewer(Stage stage, CTViewer ctViewer){
         ViewerController controller = new ViewerController();
         try {
             FXMLLoader loader = new FXMLLoader();
@@ -28,10 +28,10 @@ public class Viewer {
                     .getResource("views/viewer.fxml"))
                     .openStream());
 
-            Scene scene = new Scene(root, ctHead.getTop_width() + ctHead.getSide_width() + 350,
-                    Math.max(620, ctHead.getSide_height() + ctHead.getFront_height() + 50));
+            Scene scene = new Scene(root, ctViewer.getTop_width() + ctViewer.getSide_width() + 350,
+                    Math.max(620, ctViewer.getSide_height() + ctViewer.getFront_height() + 50));
             controller = loader.getController();
-            controller.setCTHeadViewer(ctHead);
+            controller.setCTHeadViewer(ctViewer);
             scene.getStylesheets().add("styles.css");
             controller.setStage(stage);
             controller.init();

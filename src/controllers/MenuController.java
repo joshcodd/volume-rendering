@@ -80,7 +80,7 @@ public class MenuController {
         Volume v = new Volume(xAxis, yAxis, zAxis);
         try {
             v.ReadData(filename, isCorrectEndian, isVH);
-            new Viewer(stage, new CTHeadViewer(v));
+            new Viewer(stage, new CTViewer(v));
         } catch (Exception e){
             Alert error = new Alert(Alert.AlertType.ERROR,
                     "An error was encountered.",
@@ -98,7 +98,7 @@ public class MenuController {
         try {
             v.ReadData("src/data/CThead", false, false);
 
-            new Viewer(stage, new CTHeadViewer(v));
+            new Viewer(stage, new CTViewer(v));
         } catch (Exception e){
             Alert error = new Alert(Alert.AlertType.ERROR,
                     "An error was encountered.",
