@@ -96,7 +96,7 @@ public class MenuController {
     public void handleDefaultClick() {
         Volume v = new Volume(256,256, 113);
         try {
-            v.ReadData("src/data/CThead", false, false);
+            v.ReadData("src/data/CThead_256_256_113", false, false);
 
             new Viewer(stage, new CTViewer(v));
         } catch (Exception e){
