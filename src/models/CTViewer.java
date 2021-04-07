@@ -5,7 +5,7 @@ import javafx.scene.paint.Color;
 import java.util.stream.IntStream;
 
 /**
- * Represents a ct head scan viewer and the algorithms that can be carried out on them.
+ * Represents a ct scan viewer and the algorithms that can be carried out on them.
  * @author Josh Codd
  */
 public class CTViewer {

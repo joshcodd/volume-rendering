@@ -31,7 +31,7 @@ public class Viewer {
             Scene scene = new Scene(root, ctViewer.getTop_width() + ctViewer.getSide_width() + 350,
                     Math.max(620, ctViewer.getSide_height() + ctViewer.getFront_height() + 50));
             controller = loader.getController();
-            controller.setCTHeadViewer(ctViewer);
+            controller.setCTViewer(ctViewer);
             scene.getStylesheets().add("styles.css");
             controller.setStage(stage);
             controller.init();

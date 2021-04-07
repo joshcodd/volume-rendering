@@ -208,10 +208,10 @@ public class ViewerController {
 
     /**
      * Sets the viewer to use.
-     * @param ctHead The viewer to use.
+     * @param CTViewer The viewer to use.
      */
-    public void setCTHeadViewer (CTViewer ctHead) {
-        this.ctViewer = ctHead;
+    public void setCTViewer (CTViewer CTViewer) {
+        this.ctViewer = CTViewer;
     }
 
     /**

@@ -63,7 +63,6 @@ public class Volume {
         if (isVH) { //Re-sample if user selected file is visible human project.
             resampleVisibleHuman();
         }
-        System.out.println(min+" "+max); //diagnostic - for CThead this should be -1117, 2248
     }
 
     /**
