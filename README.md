@@ -2,6 +2,7 @@
 
 An application to render CT scans and view the data using various techniques, including:
 * Normal CT rendering
+* Slice by slice viewing
 * Maximum Intensity Projection
 * Volume rendering
 * Gradient shading
