@@ -106,10 +106,11 @@ public class CTViewer {
      * @param image The image to write to.
      * @param view The direction to view the scan/dataset from. i.e front, side or top.
      */
-    public void volumeRender(WritableImage image, String view, String transferFunction) {
-        PixelWriter writer = image.getPixelWriter();
+    public WritableImage volumeRender(WritableImage image, String view, String transferFunction) {
         int width = (int) image.getWidth();
         int height = (int) image.getHeight();
+        WritableImage image1 = new WritableImage(width, height);
+        PixelWriter writer = image1.getPixelWriter();
         int depth = (view.equals("top")) ? ctScan.getCT_z_axis() : ctScan.getCT_x_axis();
 
         IntStream.range(0, height).parallel().forEach(j -> {
@@ -143,6 +144,7 @@ public class CTViewer {
                 writer.setColor(i, j, Color.color(redAccum, greenAccum, blueAccum, 1));
             });
         });
+        return image1;
     }
 
     /**

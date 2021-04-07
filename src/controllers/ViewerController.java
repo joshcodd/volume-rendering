@@ -5,6 +5,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelReader;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
@@ -187,12 +188,12 @@ public class ViewerController {
     }
 
     /**
-     * Carried out volume rendering on all views.
+     * Carries out volume rendering on all views.
      */
     public void volumeRender(){
-        ctViewer.volumeRender(side_image, "side", transferFunction);
-        ctViewer.volumeRender(top_image, "top", transferFunction);
-        ctViewer.volumeRender(front_image, "front", transferFunction);
+        volumeRenderSingle(side_image, "side");
+        volumeRenderSingle(top_image, "top");
+        volumeRenderSingle(front_image, "front");
     }
 
     /**
@@ -252,5 +253,17 @@ public class ViewerController {
      */
     public void setStage(Stage stage) {
         this.stage = stage;
+    }
+
+    /**
+     * Carries out volume rendering on a single view.
+     * @param image The image to display the rendered image in.
+     * @param view The direction to view the scan/dataset from. i.e front, side or top.
+     */
+    private void volumeRenderSingle(WritableImage image, String view){
+        PixelReader reader = ctViewer.volumeRender(image, view, transferFunction).getPixelReader();
+        int width = (int) image.getWidth();
+        int height =  (int) image.getHeight();
+        image.getPixelWriter().setPixels(0,0,width, height, reader, 0, 0);
     }
 }
