@@ -1,4 +1,4 @@
-# CT Renderer
+# CT Scan Renderer
 
 An application to render CT scans and view the data using various techniques, including:
 * Normal CT rendering
