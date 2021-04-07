@@ -14,7 +14,7 @@ I have included some datasets to be used as default ones. In this case, the file
 
 e.g. The filename CThead_256x256x113 has an X-axis length of 256, a Y-axis length of 256 and a Z-axis length of 113.
 
-![defaultdataset](https://user-images.githubusercontent.com/65715894/113883596-342ae300-97b6-11eb-8733-991268f064f5.gif)
+![defaultdataset](https://user-images.githubusercontent.com/65715894/113886503-a270a500-97b8-11eb-9591-7ba6e3ad0f31.gif)
 
 The original, pre-processed data is from: [Stanford volume archive](https://graphics.stanford.edu/data/voldata/)
 
