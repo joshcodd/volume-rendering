@@ -26,7 +26,7 @@ The Visible human project includes a CT scan of a full human cadaver. I have pro
 To only view the data chest up and increase render speed, set the Z-axis length to 512.<br>
 **Please note the size of this file tends towards 1GB**
 
-![VHP](https://user-images.githubusercontent.com/65715894/113884376-d1861700-97b6-11eb-9916-8d6965feefa6.gif)
+![VHP](https://user-images.githubusercontent.com/65715894/113885262-9df7bc80-97b7-11eb-9ad2-5d44891ff8f7.gif)
 
 
 Read more about the visible human project, and view the original data here: [Visible Human Project](https://www.nlm.nih.gov/research/visible/visible_human.html)
