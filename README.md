@@ -29,7 +29,6 @@ To only view the data chest up and increase render speed, set the Z-axis length 
 
 ![VHP](https://user-images.githubusercontent.com/65715894/113885262-9df7bc80-97b7-11eb-9ad2-5d44891ff8f7.gif)
 
-
 Read more about the visible human project, and view the original data here: [Visible Human Project](https://www.nlm.nih.gov/research/visible/visible_human.html)
 
 ## Use your own datasets:
