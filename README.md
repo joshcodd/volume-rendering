@@ -1,6 +1,6 @@
 # CT Scan Renderer
 
-An application to render CT scans and view the data using various techniques, including:
+An application to render computerized tomography (CT or CAT) scans and view the data using various techniques, including:
 * Normal CT rendering
 * Slice by slice viewing
 * Maximum Intensity Projection
