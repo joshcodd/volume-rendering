@@ -2,6 +2,7 @@ package models;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import java.util.stream.IntStream;
 
 /**
  * Represents a ct head scan viewer and the algorithms that can be carried out on them.
@@ -106,12 +107,13 @@ public class CTHeadViewer {
      * @param view The direction to view the scan/dataset from. i.e front, side or top.
      */
     public void volumeRender(WritableImage image, String view, String transferFunction) {
-        PixelWriter image_writer = image.getPixelWriter();
-        int width = (int) image.getWidth(), height = (int) image.getHeight();
+        PixelWriter writer = image.getPixelWriter();
+        int width = (int) image.getWidth();
+        int height = (int) image.getHeight();
         int depth = (view.equals("top")) ? ctHead.getCT_z_axis() : ctHead.getCT_x_axis();
 
-        for (int j = 0; j < height; j++) {
-            for (int i = 0; i < width; i++) {
+        IntStream.range(0, height).parallel().forEach(j -> {
+            IntStream.range(0, width).parallel().forEach(i -> {
                 double alphaAccum = 1;
                 double redAccum = 0;
                 double greenAccum = 0;
@@ -138,9 +140,9 @@ public class CTHeadViewer {
                         alphaAccum = alphaAccum * (1 - sigma);
                     }
                 }
-                image_writer.setColor(i, j, Color.color(redAccum, greenAccum, blueAccum, 1));
-            }//column
-        }//row
+                writer.setColor(i, j, Color.color(redAccum, greenAccum, blueAccum, 1));
+            });
+        });
     }
 
     /**
